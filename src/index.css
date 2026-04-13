@@ -1,0 +1,132 @@
+/* =============================================
+   PALETA DE COLORES — MiCachoDeFeria
+   Definida una vez aquí, usada en todo el proyecto
+   ============================================= */
+:root {
+  --albero:      #D4A55A;  /* tierra de la Maestranza — acento principal */
+  --azulejo:     #1E5F8E;  /* azul sevillano — acentos secundarios */
+  --rojo-feria:  #A63D2A;  /* farolillos y portada — detalles puntuales */
+  --blanco-cal:  #FAF7F2;  /* fondos principales */
+  --negro-suave: #1C1C1C;  /* texto */
+  --gris-claro:  #E8E4DE;  /* bordes y separadores */
+
+  /* Tipografía */
+  --fuente-ui:   'Inter', 'DM Sans', system-ui, sans-serif;
+  --fuente-logo: 'Fraunces', 'DM Serif Display', Georgia, serif;
+}
+
+/* =============================================
+   RESET MOBILE-FIRST
+   El mapa ocupa toda la pantalla, sin scroll
+   ============================================= */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+  /* dvh: dynamic viewport height — en móvil descuenta la barra del navegador */
+  height: 100dvh;
+  overflow: hidden;
+  background: var(--blanco-cal);
+  font-family: var(--fuente-ui);
+  color: var(--negro-suave);
+  -webkit-font-smoothing: antialiased;
+}
+
+#root {
+  height: 100%;
+  height: 100dvh;
+}
+
+/* =============================================
+   LAYOUT PRINCIPAL
+   ============================================= */
+#app {
+  position: relative;
+  height: 100%;
+  width: 100%;
+}
+
+/* Mapa: ocupa todo el espacio */
+#mapa-wrapper {
+  position: absolute;
+  inset: 0;   /* equivale a top/right/bottom/left: 0 */
+}
+
+/* =============================================
+   HEADER FLOTANTE
+   Translúcido, se queda encima del mapa
+   ============================================= */
+#header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+
+  /* Efecto cristal translúcido */
+  background: rgba(250, 247, 242, 0.85);  /* blanco-cal con transparencia */
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+
+  border-bottom: 1px solid var(--gris-claro);
+}
+
+.header-logo {
+  font-family: var(--fuente-logo);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--negro-suave);
+  letter-spacing: -0.3px;
+}
+
+/* =============================================
+   BOTÓN "ENTRA"
+   Área táctil mínima 44×44px (requisito móvil)
+   ============================================= */
+.btn-entra {
+  min-height: 44px;
+  min-width: 44px;
+  padding: 0 18px;
+
+  background: var(--albero);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+
+  font-family: var(--fuente-ui);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+
+  /* Transición suave */
+  transition: opacity 0.15s ease;
+}
+
+/* En móvil usamos :active en vez de :hover */
+.btn-entra:active {
+  opacity: 0.8;
+}
+
+/* En escritorio también mostramos hover */
+@media (hover: hover) {
+  .btn-entra:hover {
+    opacity: 0.88;
+  }
+}
+
+/* =============================================
+   OCULTAR CONTROLES DE ZOOM DE LEAFLET
+   En móvil se navega con pinch-zoom
+   ============================================= */
+.leaflet-control-zoom {
+  display: none;
+}
