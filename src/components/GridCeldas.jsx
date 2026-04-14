@@ -307,7 +307,7 @@ export default function GridCeldas({ angulo = ANGULO_GRID, usuario, onCeldaSelec
       if (celda) onCeldaVistaRef.current?.(celda)
     }
 
-    map.on('moveend zoomend', redibujar)
+    map.on('moveend zoomend rotate', redibujar)
     map.on('mousemove', onMousemove)
     map.on('mouseout', onMouseout)
     map.on('click', onClick)
@@ -315,7 +315,7 @@ export default function GridCeldas({ angulo = ANGULO_GRID, usuario, onCeldaSelec
 
     return () => {
       delete window.__verFotoFeria
-      map.off('moveend zoomend', redibujar)
+      map.off('moveend zoomend rotate', redibujar)
       map.off('mousemove', onMousemove)
       map.off('mouseout', onMouseout)
       map.off('click', onClick)
