@@ -2,19 +2,18 @@
    PALETA DE COLORES — MiCachoDeFeria
    ============================================= */
 :root {
-  --albero:      #D4A55A;
-  --azulejo:     #1E5F8E;
-  --rojo-feria:  #A63D2A;
-  --blanco-cal:  #FAF7F2;
-  --negro-suave: #1C1C1C;
-  --gris-claro:  #E8E4DE;
+  --rojo-principal: #C8372D;
+  --albero:         #D4A55A;   /* solo para el polígono del Real */
+  --blanco-cal:     #FAF7F2;
+  --negro-suave:    #1C1C1C;
+  --gris-claro:     #E8E4DE;
 
   /* Tipografías importadas desde Google Fonts */
   --fuente-ui:   'Inter', system-ui, sans-serif;
-  --fuente-logo: 'Playfair Display', Georgia, serif;
+  --fuente-logo: 'Fraunces', Georgia, serif;
 
-  /* Sombra estándar de paneles: suave, con tinte albero */
-  --sombra-panel: 0 10px 30px rgba(212, 165, 90, 0.12);
+  /* Sombra estándar de paneles: neutra */
+  --sombra-panel: 0 10px 30px rgba(0, 0, 0, 0.10);
 }
 
 /* =============================================
@@ -82,13 +81,16 @@ html, body {
   box-shadow: var(--sombra-panel);
 }
 
-.header-logo {
-  font-family: var(--fuente-logo);
-  font-size: 17px;
-  font-weight: 700;
-  color: var(--negro-suave);
-  letter-spacing: -0.2px;
-  white-space: nowrap;
+.header-logo-wrap {
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+
+.logo-img {
+  width: 100%;
+  height: auto;
+  display: block;
 }
 
 /* =============================================
@@ -100,7 +102,7 @@ html, body {
   min-width: 44px;
   padding: 0 18px;
 
-  background: var(--albero);
+  background: var(--rojo-principal);
   color: #fff;
   border: none;
   border-radius: 8px;
@@ -167,7 +169,7 @@ html, body {
   min-width: 32px;
   padding: 0;
   background: transparent;
-  color: var(--albero);
+  color: var(--rojo-principal);
   border: none;
   border-radius: 50%;
   font-size: 16px;
@@ -252,7 +254,7 @@ html, body {
 }
 
 .auth-input:focus {
-  border-color: var(--albero);
+  border-color: var(--rojo-principal);
 }
 
 .auth-btn {
@@ -347,7 +349,7 @@ html, body {
   font-family: var(--fuente-logo);
   font-size: 18px;
   font-weight: 700;
-  color: var(--albero);
+  color: var(--rojo-principal);
   text-align: center;
 }
 
@@ -425,7 +427,7 @@ html, body {
   font-family: var(--fuente-logo);
   font-size: 15px;
   font-weight: 700;
-  color: var(--albero);
+  color: var(--rojo-principal);
   margin-bottom: 4px;
 }
 
@@ -529,16 +531,16 @@ html, body {
 }
 
 .bs-foto-btn:active {
-  border-color: var(--albero);
-  background: rgba(212, 165, 90, 0.06);
-  color: var(--albero);
+  border-color: var(--rojo-principal);
+  background: rgba(200, 55, 45, 0.06);
+  color: var(--rojo-principal);
 }
 
 @media (hover: hover) {
   .bs-foto-btn:hover {
-    border-color: var(--albero);
-    background: rgba(212, 165, 90, 0.06);
-    color: var(--albero);
+    border-color: var(--rojo-principal);
+    background: rgba(200, 55, 45, 0.06);
+    color: var(--rojo-principal);
   }
 }
 
@@ -591,7 +593,7 @@ html, body {
 }
 
 .bs-pie-input:focus {
-  border-color: var(--albero);
+  border-color: var(--rojo-principal);
 }
 
 .bs-error {
@@ -688,7 +690,7 @@ html, body {
   font-family: var(--fuente-logo);
   font-size: 17px;
   font-weight: 700;
-  color: var(--albero);
+  color: var(--rojo-principal);
   margin: 0;
 }
 

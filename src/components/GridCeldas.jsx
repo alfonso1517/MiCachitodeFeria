@@ -27,8 +27,10 @@ const M_LNG = 111320 * Math.cos(ORIGEN_LAT * Math.PI / 180)
 const CELL_M = 20
 
 // Paleta
-const COLOR_NORMAL = '#E8E4DE'   // --gris-claro
-const COLOR_HOVER  = '#D4A55A'   // --albero
+const COLOR_NORMAL            = '#E8E4DE'   // --gris-claro
+const COLOR_HOVER             = '#C8372D'   // --rojo-principal
+const COLOR_RECLAMADA_BORDER  = '#C8372D'   // --rojo-principal
+const COLOR_RECLAMADA_FILL    = 'rgba(200, 55, 45, 0.18)'
 
 // ─── Conversiones lat/lng ↔ coordenadas locales rotadas ──────────────────────
 function aLocal(lat, lng, θ) {
@@ -214,10 +216,10 @@ export default function GridCeldas({ angulo = ANGULO_GRID, usuario, onCeldaSelec
           const reclamada  = celdasRef.current.get(`${row}-${col}`)
 
           if (reclamada) {
-            // Celda reclamada: relleno albero suave + borde marcado
-            ctx.fillStyle   = 'rgba(212, 165, 90, 0.30)'
+            // Celda reclamada: relleno rojo suave + borde marcado
+            ctx.fillStyle   = COLOR_RECLAMADA_FILL
             ctx.fill()
-            ctx.strokeStyle = '#D4A55A'
+            ctx.strokeStyle = COLOR_RECLAMADA_BORDER
             ctx.lineWidth   = 1.5
           } else {
             ctx.strokeStyle = isHov ? COLOR_HOVER : COLOR_NORMAL

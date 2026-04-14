@@ -79,7 +79,9 @@ export default function App() {
     <div id="app">
 
       <header id="header">
-        <span className="header-logo">MiCachoDeFeria</span>
+        <div className="header-logo-wrap">
+          <img src="/logo_mcdf.png" alt="MiCachoDeFeria" className="logo-img" />
+        </div>
 
         <div className="header-usuario">
           {displayName ? (
