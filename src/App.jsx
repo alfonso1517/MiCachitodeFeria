@@ -5,23 +5,29 @@ import NombreModal from './components/NombreModal'
 import ConfirmarCelda from './components/ConfirmarCelda'
 import BottomSheet from './components/BottomSheet'
 import FotoSheet from './components/FotoSheet'
+import InfoSheet from './components/InfoSheet'
 import './App.css'
+
+const INFO_KEY = 'micacho_info_visto'
 
 export default function App() {
   const [usuario,           setUsuario]           = useState(null)
-  const [celdaPendiente,    setCeldaPendiente]    = useState(null)   // esperando confirmación
+  const [celdaPendiente,    setCeldaPendiente]    = useState(null)
   const [celdaSeleccionada, setCeldaSeleccionada] = useState(null)
-  const [pendingCelda,      setPendingCelda]      = useState(null)   // espera a que el usuario ponga nombre
+  const [pendingCelda,      setPendingCelda]      = useState(null)
   const [celdaVista,        setCeldaVista]        = useState(null)
   const [refrescar,         setRefrescar]         = useState(0)
   const [mostrarNombre,     setMostrarNombre]     = useState(false)
+  // Abre automáticamente en la primera visita
+  const [mostrarInfo,       setMostrarInfo]       = useState(
+    () => !localStorage.getItem(INFO_KEY)
+  )
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user) {
         setUsuario(session.user)
       } else {
-        // Sin sesión → crear usuario anónimo automáticamente
         supabase.auth.signInAnonymously().then(({ data, error }) => {
           if (!error) setUsuario(data.user)
         })
@@ -37,12 +43,15 @@ export default function App() {
     return () => subscription.unsubscribe()
   }, [])
 
-  // Paso 1 — tap en celda libre: mostrar confirmación ligera
+  function cerrarInfo() {
+    localStorage.setItem(INFO_KEY, 'true')
+    setMostrarInfo(false)
+  }
+
   function handleCeldaSeleccionada(celda) {
     setCeldaPendiente(celda)
   }
 
-  // Paso 2 — usuario confirma "Sí, subir foto"
   function handleConfirmar() {
     const celda = celdaPendiente
     setCeldaPendiente(null)
@@ -55,7 +64,6 @@ export default function App() {
     }
   }
 
-  // Cuando el usuario guarda su nombre en el modal
   function handleNombreGuardado(updatedUser) {
     setUsuario(updatedUser)
     setMostrarNombre(false)
@@ -91,6 +99,11 @@ export default function App() {
         </div>
       </header>
 
+      {/* Botón de información flotante */}
+      <button className="btn-info" onClick={() => setMostrarInfo(true)} title="¿Cómo funciona?">
+        <i>i</i>
+      </button>
+
       <div id="mapa-wrapper">
         <MapaFeria
           usuario={usuario}
@@ -99,6 +112,8 @@ export default function App() {
           refrescar={refrescar}
         />
       </div>
+
+      {mostrarInfo && <InfoSheet onCerrar={cerrarInfo} />}
 
       {celdaPendiente && (
         <ConfirmarCelda
