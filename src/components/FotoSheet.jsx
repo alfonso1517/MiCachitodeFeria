@@ -1,5 +1,4 @@
 export default function FotoSheet({ celda, onCerrar }) {
-  // celda: { owner_name, image_url, pie_de_foto }
   return (
     <div className="bs-overlay" onClick={onCerrar}>
       <div className="bs-panel fs-panel" onClick={e => e.stopPropagation()}>
@@ -12,16 +11,13 @@ export default function FotoSheet({ celda, onCerrar }) {
           alt={`Foto de ${celda.owner_name || 'Anónimo'}`}
         />
 
-        <div className="fs-info">
+        <div className="fs-texto">
           <p className="fs-nombre">{celda.owner_name || 'Anónimo'}</p>
-          {celda.pie_de_foto && (
-            <p className="fs-pie">{celda.pie_de_foto}</p>
-          )}
+          {celda.pie_de_foto && <p className="fs-pie">{celda.pie_de_foto}</p>}
+          <button className="btn-entra fs-cerrar" onClick={onCerrar}>
+            Cerrar
+          </button>
         </div>
-
-        <button className="btn-entra bs-reclamar fs-cerrar" onClick={onCerrar}>
-          Cerrar
-        </button>
 
       </div>
     </div>

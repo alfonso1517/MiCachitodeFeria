@@ -2,12 +2,14 @@ import { useState, useEffect } from 'react'
 import { supabase } from './lib/supabase'
 import MapaFeria from './components/MapaFeria'
 import NombreModal from './components/NombreModal'
+import ConfirmarCelda from './components/ConfirmarCelda'
 import BottomSheet from './components/BottomSheet'
 import FotoSheet from './components/FotoSheet'
 import './App.css'
 
 export default function App() {
   const [usuario,           setUsuario]           = useState(null)
+  const [celdaPendiente,    setCeldaPendiente]    = useState(null)   // esperando confirmación
   const [celdaSeleccionada, setCeldaSeleccionada] = useState(null)
   const [pendingCelda,      setPendingCelda]      = useState(null)   // espera a que el usuario ponga nombre
   const [celdaVista,        setCeldaVista]        = useState(null)
@@ -35,9 +37,15 @@ export default function App() {
     return () => subscription.unsubscribe()
   }, [])
 
-  // Cuando el usuario toca una celda libre:
-  // si aún no tiene nombre → pedir nombre primero, luego abrir BottomSheet
+  // Paso 1 — tap en celda libre: mostrar confirmación ligera
   function handleCeldaSeleccionada(celda) {
+    setCeldaPendiente(celda)
+  }
+
+  // Paso 2 — usuario confirma "Sí, subir foto"
+  function handleConfirmar() {
+    const celda = celdaPendiente
+    setCeldaPendiente(null)
     const tieneNombre = usuario?.user_metadata?.display_name
     if (!tieneNombre) {
       setPendingCelda(celda)
@@ -91,6 +99,13 @@ export default function App() {
           refrescar={refrescar}
         />
       </div>
+
+      {celdaPendiente && (
+        <ConfirmarCelda
+          onConfirmar={handleConfirmar}
+          onCerrar={() => setCeldaPendiente(null)}
+        />
+      )}
 
       {mostrarNombre && (
         <NombreModal
