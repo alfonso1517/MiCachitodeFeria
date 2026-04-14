@@ -18,12 +18,18 @@ Inspirado en **r/place** y **wplace.live**, pero hiperlocal y con fecha de caduc
 
 El **Real de la Feria de Sevilla**, en el barrio de Los Remedios.
 
-### Bounding box
+### Polígono jugable (4 esquinas exactas)
 
-- Esquina suroeste: `37.3670, -6.0110`
-- Esquina noreste: `37.3725, -5.9895`
+El área no es un rectángulo alineado con el norte geográfico, sino un **cuadrilátero** que sigue la forma real del recinto:
 
-Rectángulo apaisado, más ancho que alto. Ampliado al oeste para incluir la Calle del Infierno (zona de atracciones), y al este para cubrir el Puente de las Delicias y la zona de Carlos y José. El puente forma parte del recorrido natural de muchos feriantes, y justo al otro lado del Guadalquivir está el puesto de gofres **Carlos y José**, un clásico de la mañana de feria al que la gente va a desayunar antes o después de entrar al Real. Que ese trozo también sea reclamable tiene mucho sentido: es parte de la experiencia feriante, no solo el recinto oficial.
+| Esquina | Coordenadas          | Referencia                          |
+|---------|----------------------|-------------------------------------|
+| SW      | `37.369139, -6.011528` | Extremo inferior izquierda                  |
+| SE      | `37.366750, -5.990972` | Extremo inferior derecha (CarloyJose)       |
+| NE      | `37.371917, -5.990111` | Extremo superior derecha (río / pasarela)   |
+| NW      | `37.374278, -6.011083` | Extremo superior izquierda (La Portada)     |
+
+El grid interior está rotado **-10.5°** (antihorario) para alinear las celdas con las calles de la Feria (Pascual Márquez, Juan Belmonte, etc.). Solo se dibujan y pueden reclamarse las celdas cuyo centro cae dentro del polígono. El puente forma parte del recorrido natural de muchos feriantes, y justo al otro lado del Guadalquivir está el puesto de gofres **Carlos y José**, un clásico de la mañana de feria al que la gente va a desayunar antes o después de entrar al Real. Que ese trozo también sea reclamable tiene mucho sentido: es parte de la experiencia feriante, no solo el recinto oficial.
 
 ### Zonas a incluir dentro del área jugable
 

@@ -1,23 +1,24 @@
 /* =============================================
    PALETA DE COLORES — MiCachoDeFeria
-   Definida una vez aquí, usada en todo el proyecto
    ============================================= */
 :root {
-  --albero:      #D4A55A;  /* tierra de la Maestranza — acento principal */
-  --azulejo:     #1E5F8E;  /* azul sevillano — acentos secundarios */
-  --rojo-feria:  #A63D2A;  /* farolillos y portada — detalles puntuales */
-  --blanco-cal:  #FAF7F2;  /* fondos principales */
-  --negro-suave: #1C1C1C;  /* texto */
-  --gris-claro:  #E8E4DE;  /* bordes y separadores */
+  --albero:      #D4A55A;
+  --azulejo:     #1E5F8E;
+  --rojo-feria:  #A63D2A;
+  --blanco-cal:  #FAF7F2;
+  --negro-suave: #1C1C1C;
+  --gris-claro:  #E8E4DE;
 
-  /* Tipografía */
-  --fuente-ui:   'Inter', 'DM Sans', system-ui, sans-serif;
-  --fuente-logo: 'Fraunces', 'DM Serif Display', Georgia, serif;
+  /* Tipografías importadas desde Google Fonts */
+  --fuente-ui:   'Inter', system-ui, sans-serif;
+  --fuente-logo: 'Playfair Display', Georgia, serif;
+
+  /* Sombra estándar de paneles: suave, con tinte albero */
+  --sombra-panel: 0 10px 30px rgba(212, 165, 90, 0.12);
 }
 
 /* =============================================
    RESET MOBILE-FIRST
-   El mapa ocupa toda la pantalla, sin scroll
    ============================================= */
 *, *::before, *::after {
   box-sizing: border-box;
@@ -26,8 +27,6 @@
 }
 
 html, body {
-  height: 100%;
-  /* dvh: dynamic viewport height — en móvil descuenta la barra del navegador */
   height: 100dvh;
   overflow: hidden;
   background: var(--blanco-cal);
@@ -37,7 +36,6 @@ html, body {
 }
 
 #root {
-  height: 100%;
   height: 100dvh;
 }
 
@@ -50,47 +48,52 @@ html, body {
   width: 100%;
 }
 
-/* Mapa: ocupa todo el espacio */
 #mapa-wrapper {
   position: absolute;
-  inset: 0;   /* equivale a top/right/bottom/left: 0 */
+  inset: 0;
 }
 
 /* =============================================
-   HEADER FLOTANTE
-   Translúcido, se queda encima del mapa
+   HEADER — píldora flotante, centrada
+   16px de margen para que respire sobre el mapa
    ============================================= */
 #header {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
   z-index: 1000;
+
+  /* Ancho: pantalla menos 32px de margen (16px cada lado) */
+  width: calc(100% - 32px);
+  max-width: 560px;           /* en escritorio no se estira demasiado */
 
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 16px;
+  padding: 10px 16px 10px 20px;
 
-  /* Efecto cristal translúcido */
-  background: rgba(250, 247, 242, 0.85);  /* blanco-cal con transparencia */
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-
-  border-bottom: 1px solid var(--gris-claro);
+  /* Píldora con cristal */
+  border-radius: 40px;
+  background: rgba(250, 247, 242, 0.82);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(232, 228, 222, 0.7);
+  box-shadow: var(--sombra-panel);
 }
 
 .header-logo {
   font-family: var(--fuente-logo);
-  font-size: 18px;
+  font-size: 17px;
   font-weight: 700;
   color: var(--negro-suave);
-  letter-spacing: -0.3px;
+  letter-spacing: -0.2px;
+  white-space: nowrap;
 }
 
 /* =============================================
    BOTÓN "ENTRA"
-   Área táctil mínima 44×44px (requisito móvil)
+   Sin tocar — área táctil 44×44px mínimo
    ============================================= */
 .btn-entra {
   min-height: 44px;
@@ -106,17 +109,13 @@ html, body {
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-
-  /* Transición suave */
   transition: opacity 0.15s ease;
 }
 
-/* En móvil usamos :active en vez de :hover */
 .btn-entra:active {
   opacity: 0.8;
 }
 
-/* En escritorio también mostramos hover */
 @media (hover: hover) {
   .btn-entra:hover {
     opacity: 0.88;
@@ -124,9 +123,431 @@ html, body {
 }
 
 /* =============================================
+   HEADER — estado logueado
+   ============================================= */
+.header-usuario {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.header-nombre {
+  font-family: var(--fuente-ui);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--negro-suave);
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.btn-salir {
+  min-height: 36px;
+  padding: 0 14px;
+  background: transparent;
+  color: var(--negro-suave);
+  border: 1px solid var(--gris-claro);
+  border-radius: 20px;
+  font-family: var(--fuente-ui);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.btn-salir:active  { background: var(--gris-claro); }
+@media (hover: hover) {
+  .btn-salir:hover { background: var(--gris-claro); }
+}
+
+/* =============================================
+   PANEL DE LOGIN (AuthPanel)
+   ============================================= */
+.auth-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  background: rgba(28, 28, 28, 0.45);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: flex-end;       /* bottom sheet en móvil */
+  justify-content: center;
+  padding: 16px;
+}
+
+/* En escritorio lo centramos verticalmente */
+@media (min-height: 600px) and (min-width: 480px) {
+  .auth-overlay { align-items: center; }
+}
+
+.auth-panel {
+  background: var(--blanco-cal);
+  border-radius: 24px;
+  box-shadow: var(--sombra-panel);
+  padding: 28px 24px 32px;
+  width: 100%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.auth-titulo {
+  font-family: var(--fuente-logo);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--negro-suave);
+  text-align: center;
+}
+
+.auth-subtitulo {
+  font-size: 14px;
+  color: #666;
+  text-align: center;
+  line-height: 1.5;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.auth-input {
+  height: 48px;
+  padding: 0 16px;
+  border: 1px solid var(--gris-claro);
+  border-radius: 12px;
+  font-family: var(--fuente-ui);
+  font-size: 15px;
+  color: var(--negro-suave);
+  background: #fff;
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+
+.auth-input:focus {
+  border-color: var(--albero);
+}
+
+.auth-btn {
+  width: 100%;
+  height: 48px;
+  border-radius: 12px;
+  font-size: 15px;
+}
+
+.auth-error {
+  font-size: 13px;
+  color: var(--rojo-feria);
+  text-align: center;
+}
+
+.auth-check {
+  font-size: 40px;
+  text-align: center;
+}
+
+/* =============================================
    OCULTAR CONTROLES DE ZOOM DE LEAFLET
-   En móvil se navega con pinch-zoom
    ============================================= */
 .leaflet-control-zoom {
   display: none;
+}
+
+/* =============================================
+   MARCADORES DE PUNTOS DE INTERÉS
+   Sin tocar — solo pines y tooltip
+   ============================================= */
+.poi-icono {
+  font-size: 28px;
+  line-height: 40px;
+  text-align: center;
+  filter: drop-shadow(0 1px 3px rgba(0,0,0,0.25));
+  animation: poi-pop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes poi-pop {
+  from { transform: scale(0); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
+}
+
+.poi-tooltip.leaflet-tooltip {
+  background: rgba(250, 247, 242, 0.95);
+  border: 1px solid var(--gris-claro);
+  border-radius: 20px;              /* píldora, igual que el header */
+  box-shadow: var(--sombra-panel);
+  color: var(--negro-suave);
+  font-family: var(--fuente-ui);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  padding: 3px 10px;
+  white-space: nowrap;
+}
+
+.poi-tooltip.leaflet-tooltip::before {
+  display: none;
+}
+
+/* =============================================
+   POPUP DE CELDA (provisional — Fase 5 lo reemplaza)
+   ============================================= */
+.popup-celda .leaflet-popup-content-wrapper {
+  border-radius: 24px;
+  box-shadow: var(--sombra-panel);
+  border: 1px solid rgba(232, 228, 222, 0.6);
+  padding: 0;
+  background: var(--blanco-cal);
+}
+
+.popup-celda .leaflet-popup-content {
+  margin: 0;
+}
+
+/* Quitar la sombra por defecto de Leaflet en el popup */
+.popup-celda .leaflet-popup-tip-container {
+  display: none;
+}
+
+.popup-celda-inner {
+  padding: 16px 20px;
+  font-family: var(--fuente-ui);
+  font-size: 13px;
+  color: var(--negro-suave);
+  line-height: 1.6;
+}
+
+.popup-titulo {
+  font-family: var(--fuente-logo);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--albero);
+  margin-bottom: 4px;
+}
+
+.popup-foto {
+  width: 100%;
+  max-height: 160px;
+  object-fit: cover;
+  border-radius: 16px 16px 0 0;
+  display: block;
+  margin: -16px -20px 12px;   /* sangra hasta los bordes del padding */
+  width: calc(100% + 40px);
+}
+
+.popup-pie {
+  font-size: 12px;
+  color: #666;
+  margin-top: 2px;
+}
+
+/* Foto del popup clicable para ver en grande */
+.popup-foto-zoom {
+  cursor: zoom-in;
+}
+
+/* =============================================
+   BOTTOM SHEET — reclamar celda
+   ============================================= */
+.bs-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  background: rgba(28, 28, 28, 0.45);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.bs-panel {
+  background: var(--blanco-cal);
+  border-radius: 24px 24px 0 0;
+  box-shadow: var(--sombra-panel);
+  padding: 12px 24px 40px;
+  width: 100%;
+  max-width: 560px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+
+  /* Entrada desde abajo */
+  animation: bs-subir 0.28s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes bs-subir {
+  from { transform: translateY(100%); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+.bs-handle {
+  width: 40px;
+  height: 4px;
+  background: var(--gris-claro);
+  border-radius: 2px;
+  align-self: center;
+  margin-bottom: 4px;
+}
+
+.bs-titulo {
+  font-family: var(--fuente-logo);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--negro-suave);
+  text-align: center;
+}
+
+.bs-subtitulo {
+  font-size: 14px;
+  color: #666;
+  text-align: center;
+  line-height: 1.5;
+  margin-top: -6px;
+}
+
+/* Botón grande para elegir foto cuando no hay ninguna */
+.bs-foto-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 140px;
+  border: 2px dashed var(--gris-claro);
+  border-radius: 16px;
+  background: transparent;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+  font-family: var(--fuente-ui);
+  font-size: 14px;
+  font-weight: 500;
+  color: #888;
+}
+
+.bs-foto-btn:active {
+  border-color: var(--albero);
+  background: rgba(212, 165, 90, 0.06);
+  color: var(--albero);
+}
+
+@media (hover: hover) {
+  .bs-foto-btn:hover {
+    border-color: var(--albero);
+    background: rgba(212, 165, 90, 0.06);
+    color: var(--albero);
+  }
+}
+
+.bs-foto-icono {
+  font-size: 36px;
+  line-height: 1;
+}
+
+/* Wrapper de la preview */
+.bs-preview-wrapper {
+  position: relative;
+}
+
+.bs-preview {
+  width: 100%;
+  max-height: 220px;
+  object-fit: cover;
+  border-radius: 16px;
+  display: block;
+}
+
+.bs-cambiar {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  padding: 6px 14px;
+  background: rgba(28, 28, 28, 0.65);
+  color: #fff;
+  border: none;
+  border-radius: 20px;
+  font-family: var(--fuente-ui);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  backdrop-filter: blur(4px);
+}
+
+/* Input de pie de foto */
+.bs-pie-input {
+  height: 44px;
+  padding: 0 16px;
+  border: 1px solid var(--gris-claro);
+  border-radius: 12px;
+  font-family: var(--fuente-ui);
+  font-size: 14px;
+  color: var(--negro-suave);
+  background: #fff;
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+
+.bs-pie-input:focus {
+  border-color: var(--albero);
+}
+
+.bs-error {
+  font-size: 13px;
+  color: var(--rojo-feria);
+  text-align: center;
+}
+
+/* Botón principal de reclamar */
+.bs-reclamar {
+  width: 100%;
+  height: 52px;
+  border-radius: 14px;
+  font-size: 16px;
+}
+
+.bs-reclamar:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* =============================================
+   FOTO SHEET — ver foto en grande
+   ============================================= */
+.fs-panel {
+  gap: 16px;
+}
+
+.fs-foto {
+  width: 100%;
+  max-height: 55dvh;
+  object-fit: contain;
+  border-radius: 16px;
+  background: var(--gris-claro);
+  display: block;
+}
+
+.fs-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.fs-nombre {
+  font-family: var(--fuente-logo);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--negro-suave);
+}
+
+.fs-pie {
+  font-size: 14px;
+  color: #666;
+  line-height: 1.5;
+}
+
+.fs-cerrar {
+  background: var(--gris-claro);
+  color: var(--negro-suave);
 }
