@@ -62,7 +62,9 @@ export default function BottomSheet({ celda, usuario, onCerrar, onReclamada }) {
         .getPublicUrl(fileName)
 
       // 4. Guardar celda en la BD
-      const ownerName = usuario.user_metadata?.name ?? usuario.email.split('@')[0]
+      const ownerName = usuario.user_metadata?.display_name
+                     ?? usuario.user_metadata?.name
+                     ?? 'Anónimo'
       const { error: dbError } = await supabase.from('celdas').insert({
         row:         celda.row,
         col:         celda.col,

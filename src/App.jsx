@@ -1,45 +1,63 @@
 import { useState, useEffect } from 'react'
 import { supabase } from './lib/supabase'
 import MapaFeria from './components/MapaFeria'
-import AuthPanel from './components/AuthPanel'
+import NombreModal from './components/NombreModal'
 import BottomSheet from './components/BottomSheet'
 import FotoSheet from './components/FotoSheet'
 import './App.css'
 
 export default function App() {
   const [usuario,           setUsuario]           = useState(null)
-  const [mostrarAuth,       setMostrarAuth]       = useState(false)
   const [celdaSeleccionada, setCeldaSeleccionada] = useState(null)
+  const [pendingCelda,      setPendingCelda]      = useState(null)   // espera a que el usuario ponga nombre
   const [celdaVista,        setCeldaVista]        = useState(null)
   const [refrescar,         setRefrescar]         = useState(0)
+  const [mostrarNombre,     setMostrarNombre]     = useState(false)
 
-  // Escuchar cambios de sesión: login, logout y redirección desde magic link
   useEffect(() => {
-    // Sesión activa al cargar (por si ya estaba logueado)
     supabase.auth.getSession().then(({ data: { session } }) => {
-      setUsuario(session?.user ?? null)
+      if (session?.user) {
+        setUsuario(session.user)
+      } else {
+        // Sin sesión → crear usuario anónimo automáticamente
+        supabase.auth.signInAnonymously().then(({ data, error }) => {
+          if (!error) setUsuario(data.user)
+        })
+      }
     })
 
-    // Escuchar cualquier cambio posterior (login via magic link, logout)
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (_event, session) => {
         setUsuario(session?.user ?? null)
-        // Si acaba de entrar, cerrar el panel de login
-        if (session?.user) setMostrarAuth(false)
       }
     )
 
     return () => subscription.unsubscribe()
   }, [])
 
-  async function handleLogout() {
-    await supabase.auth.signOut()
+  // Cuando el usuario toca una celda libre:
+  // si aún no tiene nombre → pedir nombre primero, luego abrir BottomSheet
+  function handleCeldaSeleccionada(celda) {
+    const tieneNombre = usuario?.user_metadata?.display_name
+    if (!tieneNombre) {
+      setPendingCelda(celda)
+      setMostrarNombre(true)
+    } else {
+      setCeldaSeleccionada(celda)
+    }
   }
 
-  // Nombre a mostrar: usa el metadata si existe, si no el email antes del @
-  const nombreUsuario = usuario?.user_metadata?.name
-    ?? usuario?.email?.split('@')[0]
-    ?? ''
+  // Cuando el usuario guarda su nombre en el modal
+  function handleNombreGuardado(updatedUser) {
+    setUsuario(updatedUser)
+    setMostrarNombre(false)
+    if (pendingCelda) {
+      setCeldaSeleccionada(pendingCelda)
+      setPendingCelda(null)
+    }
+  }
+
+  const displayName = usuario?.user_metadata?.display_name ?? null
 
   return (
     <div id="app">
@@ -47,35 +65,43 @@ export default function App() {
       <header id="header">
         <span className="header-logo">MiCachoDeFeria</span>
 
-        {usuario ? (
-          // Usuario logueado: nombre + botón de salir
-          <div className="header-usuario">
-            <span className="header-nombre">{nombreUsuario}</span>
-            <button className="btn-salir" onClick={handleLogout}>Salir</button>
-          </div>
-        ) : (
-          // No logueado: botón de entrar
-          <button className="btn-entra" onClick={() => setMostrarAuth(true)}>
-            Entra
-          </button>
-        )}
+        <div className="header-usuario">
+          {displayName ? (
+            <>
+              <span className="header-nombre">{displayName}</span>
+              <button
+                className="btn-editar-nombre"
+                onClick={() => setMostrarNombre(true)}
+                title="Cambiar nombre"
+              >✎</button>
+            </>
+          ) : (
+            <button className="btn-entra" onClick={() => setMostrarNombre(true)}>
+              Pon tu nombre
+            </button>
+          )}
+        </div>
       </header>
 
       <div id="mapa-wrapper">
         <MapaFeria
           usuario={usuario}
-          onCeldaSeleccionada={setCeldaSeleccionada}
+          onCeldaSeleccionada={handleCeldaSeleccionada}
           onCeldaVista={setCeldaVista}
           refrescar={refrescar}
         />
       </div>
 
-      {/* Panel de login — solo visible cuando se pulsa "Entra" */}
-      {mostrarAuth && (
-        <AuthPanel onCerrar={() => setMostrarAuth(false)} />
+      {mostrarNombre && (
+        <NombreModal
+          onGuardar={handleNombreGuardado}
+          onCerrar={() => {
+            setMostrarNombre(false)
+            setPendingCelda(null)
+          }}
+        />
       )}
 
-      {/* Bottom sheet para reclamar una celda */}
       {celdaVista && (
         <FotoSheet
           celda={celdaVista}
