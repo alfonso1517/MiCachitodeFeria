@@ -345,6 +345,22 @@ html, body {
   font-weight: 700;
 }
 
+.info-como {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--albero);
+  margin: 4px 0 0;
+}
+
+.info-texto {
+  font-size: 15px;
+  color: var(--negro-suave);
+  line-height: 1.6;
+  margin: 0;
+}
+
 .info-cierre {
   font-family: var(--fuente-logo);
   font-size: 18px;

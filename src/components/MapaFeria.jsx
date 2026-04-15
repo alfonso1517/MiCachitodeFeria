@@ -1,19 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
-import { MapContainer, TileLayer, Polygon, Marker, Tooltip, useMap } from 'react-leaflet'
+import { MapContainer, TileLayer, Marker, Tooltip, useMap } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
 import 'leaflet-rotate'
 import L from 'leaflet'
-import CasetasGeoJSON, { POLIGONO } from './CasetasGeoJSON'
+import CasetasGeoJSON from './CasetasGeoJSON'
 
 // Centro geográfico de las casetas
 const CENTRO = [37.3697, -5.9999]
-
-const estiloPoligono = {
-  color:       '#D4A55A',
-  weight:      1,
-  opacity:     0.5,
-  fillOpacity: 0,
-}
 
 const POIS = [
   { pos: [37.3714, -5.9974], emoji: '🏮', label: 'La Portada' },
@@ -78,6 +71,29 @@ function MapInit({ bearing }) {
   return null
 }
 
+// ─── RecintoGeoJSON ──────────────────────────────────────────────────────────
+function RecintoGeoJSON() {
+  const map = useMap()
+
+  useEffect(() => {
+    let layer
+    import('../data/recinto_feria.geojson').then(m => {
+      layer = L.geoJSON(m.default, {
+        style: {
+          color:       '#D4A55A',
+          weight:      2,
+          opacity:     0.7,
+          fillColor:   '#F4E8C1',
+          fillOpacity: 0.07,
+        },
+      }).addTo(map)
+    })
+    return () => { if (layer) layer.remove() }
+  }, [map])
+
+  return null
+}
+
 function esMobilePortraitActual() {
   return window.matchMedia('(orientation: portrait) and (max-width: 768px)').matches
 }
@@ -115,7 +131,7 @@ export default function MapaFeria({ usuario, onCeldaSeleccionada, onCeldaVista, 
           maxZoom={19}
         />
 
-        <Polygon positions={POLIGONO} pathOptions={estiloPoligono} />
+        <RecintoGeoJSON />
 
         <CasetasGeoJSON
           usuario={usuario}
