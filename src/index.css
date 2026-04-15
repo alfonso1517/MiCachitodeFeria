@@ -474,6 +474,34 @@ html, body {
   cursor: zoom-in;
 }
 
+.popup-contador {
+  font-size: 11px;
+  color: #aaa;
+  margin: 2px 0 0;
+  text-align: center;
+}
+
+.popup-ver-fotos {
+  color: var(--rojo-principal);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.popup-anadir {
+  display: block;
+  width: 100%;
+  margin-top: 6px;
+  padding: 6px 0;
+  background: var(--rojo-principal);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
 /* =============================================
    BOTTOM SHEET — reclamar celda
    ============================================= */
@@ -671,6 +699,14 @@ html, body {
   text-align: center;
 }
 
+.cc-fotos-contador {
+  font-size: 13px;
+  color: var(--albero);
+  font-weight: 600;
+  text-align: center;
+  margin: -4px 0 0;
+}
+
 .cc-direccion {
   font-size: 13px;
   color: #666;
@@ -694,15 +730,43 @@ html, body {
   gap: 0;
 }
 
-.fs-foto {
+/* ── Carrusel ── */
+.fs-carrusel {
   flex: 7;
   min-height: 0;
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  margin: 8px 0 0;
+}
+.fs-carrusel::-webkit-scrollbar { display: none; }
+
+.fs-slide {
+  flex: 0 0 100%;
+  scroll-snap-align: start;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fs-foto {
   width: calc(100% - 32px);
-  margin: 8px 16px 0;
+  height: 100%;
   object-fit: contain;
   border-radius: 12px;
   background: var(--gris-claro);
   display: block;
+}
+
+.fs-contador {
+  font-size: 12px;
+  color: #999;
+  text-align: center;
+  margin: 4px 0 0;
+  letter-spacing: 0.04em;
 }
 
 .fs-texto {
@@ -749,12 +813,23 @@ html, body {
 /* =============================================
    BUSCADOR DE CASETAS
    ============================================= */
+/* Píldoras flotantes de acción — cada una con posición fija propia */
 .btn-buscar {
   position: fixed;
   top: 144px;
   right: 16px;
-  z-index: 1000;
+  z-index: 1001;
+}
 
+.btn-subir-foto {
+  position: fixed;
+  top: 200px;   /* 144 + 44px botón + 12px gap */
+  right: 16px;
+  z-index: 1001;
+}
+
+.btn-buscar,
+.btn-subir-foto {
   height: 44px;
   padding: 0 18px;
   border-radius: 22px;
@@ -771,13 +846,40 @@ html, body {
 
   display: flex;
   align-items: center;
+  gap: 6px;
   justify-content: center;
 
   transition: opacity 0.15s ease;
 }
-.btn-buscar:active { opacity: 0.8; }
+.btn-buscar:active,
+.btn-subir-foto:active { opacity: 0.8; }
 @media (hover: hover) {
-  .btn-buscar:hover { opacity: 0.88; }
+  .btn-buscar:hover,
+  .btn-subir-foto:hover { opacity: 0.88; }
+}
+
+/* Toast guía */
+.toast-guia {
+  position: fixed;
+  bottom: 88px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1100;
+
+  background: rgba(30, 20, 10, 0.88);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 12px 20px;
+  border-radius: 24px;
+  white-space: nowrap;
+  pointer-events: none;
+
+  animation: toast-in 0.2s ease;
+}
+@keyframes toast-in {
+  from { opacity: 0; transform: translateX(-50%) translateY(8px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
 }
 
 /* Capa oscura detrás del panel */

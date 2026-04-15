@@ -1,7 +1,8 @@
 import { useEffect } from 'react'
 
-export default function ConfirmarCelda({ onConfirmar, onCerrar, direccion }) {
-  // Escape cierra el popup (accesibilidad desktop)
+const MAX_FOTOS = 10
+
+export default function ConfirmarCelda({ onConfirmar, onCerrar, direccion, fotoCount = 0 }) {
   useEffect(() => {
     function handleKeyDown(e) {
       if (e.key === 'Escape') onCerrar()
@@ -16,7 +17,14 @@ export default function ConfirmarCelda({ onConfirmar, onCerrar, direccion }) {
 
         <div className="bs-handle" />
 
-        <p className="cc-pregunta">¿Reclamar este cacho?</p>
+        {fotoCount > 0 ? (
+          <>
+            <p className="cc-pregunta">¿Añadir tu foto?</p>
+            <p className="cc-fotos-contador">{fotoCount}/{MAX_FOTOS} fotos ya subidas</p>
+          </>
+        ) : (
+          <p className="cc-pregunta">¿Reclamar este cacho?</p>
+        )}
         {direccion && <p className="cc-direccion">{direccion}</p>}
 
         <button className="btn-entra cc-btn" onClick={onConfirmar}>

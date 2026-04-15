@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { supabase } from './lib/supabase'
 import MapaFeria from './components/MapaFeria'
 import NombreModal from './components/NombreModal'
@@ -24,11 +24,12 @@ export default function App() {
   const [celdaVista,        setCeldaVista]        = useState(null)
   const [refrescar,         setRefrescar]         = useState(0)
   const [mostrarNombre,     setMostrarNombre]     = useState(false)
-  // Abre automáticamente en la primera visita
   const [mostrarInfo,       setMostrarInfo]       = useState(
     () => !localStorage.getItem(INFO_KEY)
   )
   const [celdaResaltada,    setCeldaResaltada]    = useState(null)
+  const [toastVisible,      setToastVisible]      = useState(false)
+  const toastTimerRef = useRef(null)
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -80,6 +81,18 @@ export default function App() {
     }
   }
 
+  function handleSubirFoto() {
+    const tieneNombre = usuario?.user_metadata?.display_name
+    if (!tieneNombre) {
+      setMostrarNombre(true)
+      return
+    }
+    // Mostrar toast guía
+    setToastVisible(true)
+    clearTimeout(toastTimerRef.current)
+    toastTimerRef.current = setTimeout(() => setToastVisible(false), 3000)
+  }
+
   const displayName = usuario?.user_metadata?.display_name ?? null
 
   return (
@@ -113,8 +126,18 @@ export default function App() {
         <i>i</i>
       </button>
 
-      {/* Buscador de casetas flotante */}
+      {/* Botones flotantes independientes */}
       <BuscadorCasetas onSeleccionar={item => setCeldaResaltada(item)} />
+      <button className="btn-subir-foto" onClick={handleSubirFoto} aria-label="Subir foto">
+        📷 Subir Foto
+      </button>
+
+      {/* Toast guía */}
+      {toastVisible && (
+        <div className="toast-guia">
+          ¡Busca tu caseta o tócala en el mapa!
+        </div>
+      )}
 
       <div id="mapa-wrapper">
         <MapaFeria
@@ -133,6 +156,7 @@ export default function App() {
           onConfirmar={handleConfirmar}
           onCerrar={() => setCeldaPendiente(null)}
           direccion={formatDireccion(celdaPendiente)}
+          fotoCount={celdaPendiente.fotoCount ?? 0}
         />
       )}
 

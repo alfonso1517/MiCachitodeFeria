@@ -1,8 +1,9 @@
 import { useState, useRef } from 'react'
 import { supabase } from '../lib/supabase'
 
+const MAX_FOTOS = 10
+
 // Comprime la imagen antes de subirla: máx 1200px en cualquier dimensión, JPEG 0.82
-// Evita subir fotos de 8MB desde el móvil
 async function comprimirImagen(file) {
   return new Promise((resolve) => {
     const img = new Image()
@@ -46,6 +47,19 @@ export default function BottomSheet({ celda, usuario, onCerrar, onReclamada }) {
     setError(null)
 
     try {
+      // Comprobar que la caseta no se ha llenado mientras tanto
+      const { count, error: countError } = await supabase
+        .from('celdas')
+        .select('*', { count: 'exact', head: true })
+        .eq('row', celda.row)
+        .eq('col', celda.col)
+      if (countError) throw countError
+      if (count >= MAX_FOTOS) {
+        setError(`Esta caseta ya tiene sus ${MAX_FOTOS} fotos. ¡Busca otra!`)
+        setCargando(false)
+        return
+      }
+
       // 1. Comprimir imagen en cliente
       const blob = await comprimirImagen(foto)
 
@@ -75,7 +89,14 @@ export default function BottomSheet({ celda, usuario, onCerrar, onReclamada }) {
         street:      celda.street || null,
         number:      celda.number || null,
       })
-      if (dbError) throw dbError
+      if (dbError) {
+        if (dbError.message?.includes('max_fotos_alcanzado')) {
+          setError(`Esta caseta ya tiene sus ${MAX_FOTOS} fotos. ¡Busca otra!`)
+          setCargando(false)
+          return
+        }
+        throw dbError
+      }
 
       // 5. Notificar al mapa y cerrar
       onReclamada({
@@ -98,7 +119,6 @@ export default function BottomSheet({ celda, usuario, onCerrar, onReclamada }) {
     <div className="bs-overlay" onClick={onCerrar}>
       <div className="bs-panel" onClick={e => e.stopPropagation()}>
 
-        {/* Tirador visual */}
         <div className="bs-handle" />
 
         <h2 className="bs-titulo">¡Este cacho es tuyo!</h2>
@@ -106,7 +126,6 @@ export default function BottomSheet({ celda, usuario, onCerrar, onReclamada }) {
           Hazte una foto aquí mismo o elige una de la galería.
         </p>
 
-        {/* Input de imagen oculto — abre cámara en móvil */}
         <input
           ref={inputRef}
           type="file"
@@ -136,7 +155,6 @@ export default function BottomSheet({ celda, usuario, onCerrar, onReclamada }) {
           </button>
         )}
 
-        {/* Pie de foto — solo aparece cuando hay foto seleccionada */}
         {foto && (
           <input
             type="text"
