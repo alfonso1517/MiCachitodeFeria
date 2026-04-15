@@ -130,7 +130,7 @@ export default function BottomSheet({ celda, usuario, onCerrar, onReclamada }) {
           ref={inputRef}
           type="file"
           accept="image/*"
-          capture="environment"
+
           onChange={handleFoto}
           style={{ display: 'none' }}
         />

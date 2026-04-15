@@ -508,7 +508,10 @@ html, body {
 .bs-overlay {
   position: fixed;
   inset: 0;
-  z-index: 2000;
+  z-index: 9000;
+  /* transform: translateZ(0) fuerza Safari a crear su propia capa de compositing
+     por encima del header (que tiene backdrop-filter y crea su propia capa) */
+  transform: translateZ(0);
   background: rgba(28, 28, 28, 0.45);
   backdrop-filter: blur(4px);
   display: flex;
