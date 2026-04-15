@@ -10,6 +10,11 @@ import './App.css'
 
 const INFO_KEY = 'micacho_info_visto'
 
+function formatDireccion({ street, number, name } = {}) {
+  const partes = [street, number].filter(Boolean).join(', ')
+  return name ? `${partes} — ${name}` : partes
+}
+
 export default function App() {
   const [usuario,           setUsuario]           = useState(null)
   const [celdaPendiente,    setCeldaPendiente]    = useState(null)
@@ -121,6 +126,7 @@ export default function App() {
         <ConfirmarCelda
           onConfirmar={handleConfirmar}
           onCerrar={() => setCeldaPendiente(null)}
+          direccion={formatDireccion(celdaPendiente)}
         />
       )}
 

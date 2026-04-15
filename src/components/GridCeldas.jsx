@@ -27,10 +27,10 @@ const M_LNG = 111320 * Math.cos(ORIGEN_LAT * Math.PI / 180)
 const CELL_M = 20
 
 // Paleta
-const COLOR_NORMAL            = '#E8E4DE'   // --gris-claro
+const COLOR_NORMAL            = '#D0CBC4'   // ligeramente más oscuro para OSM
 const COLOR_HOVER             = '#C8372D'   // --rojo-principal
 const COLOR_RECLAMADA_BORDER  = '#C8372D'   // --rojo-principal
-const COLOR_RECLAMADA_FILL    = 'rgba(200, 55, 45, 0.18)'
+const COLOR_RECLAMADA_FILL    = 'rgba(200, 55, 45, 0.22)'
 
 // ─── Conversiones lat/lng ↔ coordenadas locales rotadas ──────────────────────
 function aLocal(lat, lng, θ) {

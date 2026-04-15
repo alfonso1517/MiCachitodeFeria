@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 
-export default function ConfirmarCelda({ onConfirmar, onCerrar }) {
+export default function ConfirmarCelda({ onConfirmar, onCerrar, direccion }) {
   // Escape cierra el popup (accesibilidad desktop)
   useEffect(() => {
     function handleKeyDown(e) {
@@ -17,6 +17,7 @@ export default function ConfirmarCelda({ onConfirmar, onCerrar }) {
         <div className="bs-handle" />
 
         <p className="cc-pregunta">¿Reclamar este cacho?</p>
+        {direccion && <p className="cc-direccion">{direccion}</p>}
 
         <button className="btn-entra cc-btn" onClick={onConfirmar}>
           Sí, subir foto

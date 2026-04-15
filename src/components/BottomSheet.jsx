@@ -72,6 +72,8 @@ export default function BottomSheet({ celda, usuario, onCerrar, onReclamada }) {
         owner_name:  ownerName,
         image_url:   publicUrl,
         pie_de_foto: pieDeFoto.trim() || null,
+        street:      celda.street || null,
+        number:      celda.number || null,
       })
       if (dbError) throw dbError
 

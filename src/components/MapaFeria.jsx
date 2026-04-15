@@ -3,7 +3,7 @@ import { MapContainer, TileLayer, Polygon, Marker, Tooltip, useMap } from 'react
 import 'leaflet/dist/leaflet.css'
 import 'leaflet-rotate'
 import L from 'leaflet'
-import GridCeldas, { POLIGONO, ANGULO_GRID } from './GridCeldas'
+import CasetasGeoJSON, { POLIGONO } from './CasetasGeoJSON'
 
 // Centro calculado como centroide del polígono jugable
 const CENTRO = [
@@ -13,9 +13,9 @@ const CENTRO = [
 
 const estiloPoligono = {
   color:       '#D4A55A',
-  weight:      2,
-  fillColor:   '#D4A55A',
-  fillOpacity: 0.06,
+  weight:      1,
+  opacity:     0.5,
+  fillOpacity: 0,
 }
 
 // ─── Puntos de interés ────────────────────────────────────────────────────────
@@ -85,9 +85,8 @@ export default function MapaFeria({ usuario, onCeldaSeleccionada, onCeldaVista, 
         {/* Borde naranja siguiendo el polígono exacto del recinto */}
         <Polygon positions={POLIGONO} pathOptions={estiloPoligono} />
 
-        {/* Cuadrícula de celdas rotada y recortada al polígono */}
-        <GridCeldas
-          angulo={ANGULO_GRID}
+        {/* Polígonos reales de casetas extraídos de OpenStreetMap */}
+        <CasetasGeoJSON
           usuario={usuario}
           onCeldaSeleccionada={onCeldaSeleccionada}
           onCeldaVista={onCeldaVista}
