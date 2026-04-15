@@ -729,3 +729,109 @@ html, body {
   background: var(--gris-claro);
   color: var(--negro-suave);
 }
+
+/* =============================================
+   BUSCADOR DE CASETAS
+   ============================================= */
+.btn-buscar {
+  position: fixed;
+  top: 144px;
+  right: 16px;
+  z-index: 1000;
+
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+
+  background: var(--blanco-cal);
+  box-shadow: var(--sombra-panel);
+  color: var(--negro-suave);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  transition: opacity 0.15s ease;
+}
+.btn-buscar:active { opacity: 0.7; }
+@media (hover: hover) {
+  .btn-buscar:hover { opacity: 0.85; }
+}
+
+/* Capa oscura detrás del panel */
+.buscador-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+}
+
+/* Panel principal */
+.buscador-panel {
+  position: fixed;
+  top: 76px;              /* justo debajo de la píldora del header */
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 32px);
+  max-width: 560px;
+  z-index: 1001;
+
+  background: rgba(250, 247, 242, 0.97);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+  overflow: hidden;
+
+  animation: bs-subir 0.18s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.buscador-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 14px 18px;
+  font-family: var(--fuente-ui);
+  font-size: 16px;           /* 16px evita zoom en iOS */
+  color: var(--negro-suave);
+  background: transparent;
+  border: none;
+  outline: none;
+  border-bottom: 1px solid rgba(0,0,0,0.08);
+}
+.buscador-input::placeholder { color: #aaa; }
+
+/* Ocultar el botón nativo de limpiar en webkit */
+.buscador-input::-webkit-search-cancel-button { display: none; }
+
+.buscador-lista {
+  list-style: none;
+  margin: 0;
+  padding: 6px 0;
+  max-height: 52vh;
+  overflow-y: auto;
+}
+
+.buscador-item {
+  padding: 12px 18px;
+  font-family: var(--fuente-ui);
+  font-size: 14px;
+  color: var(--negro-suave);
+  cursor: pointer;
+  line-height: 1.35;
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+  transition: background 0.1s;
+}
+.buscador-item:last-child { border-bottom: none; }
+.buscador-item:active { background: rgba(200,55,45,0.08); }
+@media (hover: hover) {
+  .buscador-item:hover { background: rgba(200,55,45,0.06); }
+}
+
+.buscador-vacio {
+  padding: 14px 18px;
+  font-size: 14px;
+  color: #999;
+  text-align: center;
+  margin: 0;
+}

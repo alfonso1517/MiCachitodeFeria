@@ -17,6 +17,10 @@ const ESTILO_HOVER = {
 const ESTILO_RECLAMADA = {
   color: '#a02020', fillColor: '#C8372D', weight: 1, opacity: 1, fillOpacity: 0.85,
 }
+// Resultado de búsqueda resaltado
+const ESTILO_RESALTADA = {
+  color: '#fff', fillColor: '#C8372D', weight: 3, opacity: 1, fillOpacity: 0.95,
+}
 // Zonas especiales (Calle del Infierno, Mañaneo, La Estrellita)
 const ESTILO_ESPECIAL = {
   color: '#B8960C', fillColor: '#D4A843', weight: 1.5, opacity: 1, fillOpacity: 0.60,
@@ -26,7 +30,7 @@ const ESTILO_ESPECIAL_HOVER = {
 }
 
 // ─── Componente ───────────────────────────────────────────────────────────────
-export default function CasetasGeoJSON({ usuario, onCeldaSeleccionada, onCeldaVista, refrescar = 0 }) {
+export default function CasetasGeoJSON({ usuario, onCeldaSeleccionada, onCeldaVista, refrescar = 0, celdaResaltada }) {
   const map = useMap()
 
   // key "row-col" → { layer, row, col }
@@ -34,6 +38,7 @@ export default function CasetasGeoJSON({ usuario, onCeldaSeleccionada, onCeldaVi
   // key "row-col" → fila de BD
   const celdasRef             = useRef(new Map())
   const hoveredKeyRef         = useRef(null)
+  const resaltadaKeyRef       = useRef(null)
   // Función estable que re-aplica estilos sobre todos los polígonos
   const aplicarEstilosRef     = useRef(null)
 
@@ -187,6 +192,33 @@ export default function CasetasGeoJSON({ usuario, onCeldaSeleccionada, onCeldaVi
       featuresRef.current.clear()
     }
   }, [map]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // ── Resaltar caseta buscada + flyTo ──────────────────────────────────────
+  useEffect(() => {
+    // Restaurar estilo de la caseta anteriormente resaltada
+    if (resaltadaKeyRef.current) {
+      const prev = featuresRef.current.get(resaltadaKeyRef.current)
+      if (prev) {
+        prev.layer.setStyle(
+          celdasRef.current.get(resaltadaKeyRef.current)
+            ? ESTILO_RECLAMADA
+            : prev.isSpecial ? ESTILO_ESPECIAL : ESTILO_LIBRE
+        )
+      }
+      resaltadaKeyRef.current = null
+    }
+
+    if (!celdaResaltada) return
+
+    const { key, lat, lng } = celdaResaltada
+    const item = featuresRef.current.get(key)
+    if (item) {
+      item.layer.setStyle(ESTILO_RESALTADA)
+      item.layer.bringToFront()
+      resaltadaKeyRef.current = key
+    }
+    map.flyTo([lat, lng], 19, { animate: true, duration: 0.8 })
+  }, [celdaResaltada, map])
 
   return null
 }

@@ -48,7 +48,7 @@ function esMobilePortraitActual() {
   return window.matchMedia('(orientation: portrait) and (max-width: 768px)').matches
 }
 
-export default function MapaFeria({ usuario, onCeldaSeleccionada, onCeldaVista, refrescar }) {
+export default function MapaFeria({ usuario, onCeldaSeleccionada, onCeldaVista, refrescar, celdaResaltada }) {
   const BEARING_MOVIL = 80
   const [mobilePortrait, setMobilePortrait] = useState(esMobilePortraitActual)
 
@@ -91,6 +91,7 @@ export default function MapaFeria({ usuario, onCeldaSeleccionada, onCeldaVista, 
           onCeldaSeleccionada={onCeldaSeleccionada}
           onCeldaVista={onCeldaVista}
           refrescar={refrescar}
+          celdaResaltada={celdaResaltada}
         />
 
         {/* Marcadores de puntos de interés */}

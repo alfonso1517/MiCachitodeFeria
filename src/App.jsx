@@ -6,6 +6,7 @@ import ConfirmarCelda from './components/ConfirmarCelda'
 import BottomSheet from './components/BottomSheet'
 import FotoSheet from './components/FotoSheet'
 import InfoSheet from './components/InfoSheet'
+import BuscadorCasetas from './components/BuscadorCasetas'
 import './App.css'
 
 const INFO_KEY = 'micacho_info_visto'
@@ -27,6 +28,7 @@ export default function App() {
   const [mostrarInfo,       setMostrarInfo]       = useState(
     () => !localStorage.getItem(INFO_KEY)
   )
+  const [celdaResaltada,    setCeldaResaltada]    = useState(null)
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -111,12 +113,16 @@ export default function App() {
         <i>i</i>
       </button>
 
+      {/* Buscador de casetas flotante */}
+      <BuscadorCasetas onSeleccionar={item => setCeldaResaltada(item)} />
+
       <div id="mapa-wrapper">
         <MapaFeria
           usuario={usuario}
           onCeldaSeleccionada={handleCeldaSeleccionada}
           onCeldaVista={setCeldaVista}
           refrescar={refrescar}
+          celdaResaltada={celdaResaltada}
         />
       </div>
 
