@@ -1,7 +1,5 @@
 import { useState, useMemo, useRef, useEffect } from 'react'
-import casetasData from '../data/casetas_feria.geojson'
 
-// ─── Índice de búsqueda (se construye una sola vez al cargar el módulo) ───────
 function normalizar(str) {
   return (str || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
 }
@@ -13,41 +11,48 @@ function centroide(coordenadas) {
   return [lat, lng]
 }
 
-const INDICE = casetasData.features
-  .map(f => {
-    const { row, col, name, street, number } = f.properties
-    const key = `${row}-${col}`
-    const partes = [street, number].filter(Boolean).join(', ')
-    const display = name ? `${partes} — ${name}` : partes
-    if (!display) return null
-    return {
-      key,
-      row, col,
-      display,
-      textoBusqueda: normalizar(`${name} ${street} ${number}`),
-      lat: centroide(f.geometry.coordinates)[0],
-      lng: centroide(f.geometry.coordinates)[1],
-    }
-  })
-  .filter(Boolean)
+function construirIndice(data) {
+  return data.features
+    .map(f => {
+      const { row, col, name, street, number } = f.properties
+      const key = `${row}-${col}`
+      const partes = [street, number].filter(Boolean).join(', ')
+      const display = name ? `${partes} — ${name}` : partes
+      if (!display) return null
+      return {
+        key,
+        row, col,
+        display,
+        textoBusqueda: normalizar(`${name} ${street} ${number}`),
+        lat: centroide(f.geometry.coordinates)[0],
+        lng: centroide(f.geometry.coordinates)[1],
+      }
+    })
+    .filter(Boolean)
+}
 
-// ─── Componente ───────────────────────────────────────────────────────────────
 export default function BuscadorCasetas({ onSeleccionar }) {
-  const [abierto,   setAbierto]   = useState(false)
-  const [query,     setQuery]     = useState('')
+  const [abierto, setAbierto] = useState(false)
+  const [query,   setQuery]   = useState('')
+  const [indice,  setIndice]  = useState([])
   const inputRef = useRef(null)
   const panelRef = useRef(null)
+
+  // Lazy load — no bloquea el render inicial
+  useEffect(() => {
+    import('../data/casetas_feria.geojson')
+      .then(m => setIndice(construirIndice(m.default)))
+  }, [])
 
   const resultados = useMemo(() => {
     const q = normalizar(query).trim()
     if (!q) return []
     const tokens = q.split(/\s+/)
-    return INDICE
+    return indice
       .filter(item => tokens.every(t => item.textoBusqueda.includes(t)))
       .slice(0, 9)
-  }, [query])
+  }, [query, indice])
 
-  // Focus al abrir; limpiar query al cerrar
   useEffect(() => {
     if (abierto) {
       setTimeout(() => inputRef.current?.focus(), 60)
@@ -56,7 +61,6 @@ export default function BuscadorCasetas({ onSeleccionar }) {
     }
   }, [abierto])
 
-  // Cerrar con Escape
   useEffect(() => {
     if (!abierto) return
     function onKey(e) { if (e.key === 'Escape') setAbierto(false) }
@@ -71,23 +75,16 @@ export default function BuscadorCasetas({ onSeleccionar }) {
 
   return (
     <>
-      {/* Botón lupa en el header */}
       <button
         className="btn-buscar"
         onClick={() => setAbierto(a => !a)}
-        title="Buscar caseta"
         aria-label="Buscar caseta"
       >
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-          <circle cx="11" cy="11" r="7" />
-          <line x1="16.5" y1="16.5" x2="22" y2="22" />
-        </svg>
+        Buscar Caseta
       </button>
 
-      {/* Panel de búsqueda */}
       {abierto && (
         <>
-          {/* Capa de cierre al tocar fuera */}
           <div className="buscador-backdrop" onClick={() => setAbierto(false)} />
 
           <div className="buscador-panel" ref={panelRef}>

@@ -1,8 +1,7 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useMap } from 'react-leaflet'
 import L from 'leaflet'
 import { supabase } from '../lib/supabase'
-import casetasData from '../data/casetas_feria.geojson'
 
 // Re-exportamos para que MapaFeria pueda importar desde aquí
 export { POLIGONO, ANGULO_GRID } from './GridCeldas'
@@ -32,6 +31,12 @@ const ESTILO_ESPECIAL_HOVER = {
 // ─── Componente ───────────────────────────────────────────────────────────────
 export default function CasetasGeoJSON({ usuario, onCeldaSeleccionada, onCeldaVista, refrescar = 0, celdaResaltada }) {
   const map = useMap()
+  const [casetasData, setCasetasData] = useState(null)
+
+  // Lazy load — no bloquea el render inicial de la app
+  useEffect(() => {
+    import('../data/casetas_feria.geojson').then(m => setCasetasData(m.default))
+  }, [])
 
   // key "row-col" → { layer, row, col }
   const featuresRef           = useRef(new Map())
@@ -66,8 +71,9 @@ export default function CasetasGeoJSON({ usuario, onCeldaSeleccionada, onCeldaVi
     recargar()
   }, [refrescar])
 
-  // ── Montar la capa GeoJSON ────────────────────────────────────────────────
+  // ── Montar la capa GeoJSON (espera a que los datos estén cargados) ──────────
   useEffect(() => {
+    if (!casetasData) return
     // Devuelve el estilo base (sin hover, sin reclamar) según el tipo de feature
     function estiloBase(item) {
       return item.isSpecial ? ESTILO_ESPECIAL : ESTILO_LIBRE
@@ -81,7 +87,11 @@ export default function CasetasGeoJSON({ usuario, onCeldaSeleccionada, onCeldaVi
     }
     aplicarEstilosRef.current = aplicarEstilos
 
+    // padding: 1 cubre el viewport rotado 80° completo (leaflet-rotate)
+    const renderer = L.svg({ padding: 1 })
+
     const geoLayer = L.geoJSON(casetasData, {
+      renderer,
       style: (feature) =>
         feature.properties.zone === 'special' ? { ...ESTILO_ESPECIAL } : { ...ESTILO_LIBRE },
 
@@ -191,7 +201,7 @@ export default function CasetasGeoJSON({ usuario, onCeldaSeleccionada, onCeldaVi
       geoLayer.remove()
       featuresRef.current.clear()
     }
-  }, [map]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [map, casetasData]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Resaltar caseta buscada + flyTo ──────────────────────────────────────
   useEffect(() => {
