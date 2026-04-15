@@ -200,6 +200,8 @@ export default function CasetasGeoJSON({ usuario, onCeldaSeleccionada, onCeldaVi
       const feat = featuresRef.current.get(key)
       onCeldaVistaRef.current?.({
         fotos:  entrada.fotos,
+        row:    feat?.row,
+        col:    feat?.col,
         street: feat?.street,
         number: feat?.number,
         name:   feat?.name,

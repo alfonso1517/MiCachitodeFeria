@@ -173,6 +173,7 @@ export default function App() {
       {celdaVista && (
         <FotoSheet
           celda={celdaVista}
+          usuario={usuario}
           onCerrar={() => setCeldaVista(null)}
         />
       )}
