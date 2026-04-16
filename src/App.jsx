@@ -11,6 +11,17 @@ import './App.css'
 
 const INFO_KEY = 'micacho_info_visto'
 
+function esIOS() {
+  return /iphone|ipad|ipod/i.test(navigator.userAgent) && !window.MSStream
+}
+
+function estaInstalada() {
+  return (
+    window.matchMedia('(display-mode: standalone)').matches ||
+    window.navigator.standalone === true
+  )
+}
+
 function formatDireccion({ street, number, name } = {}) {
   const partes = [street, number].filter(Boolean).join(', ')
   return name ? `${partes} — ${name}` : partes
@@ -31,6 +42,11 @@ export default function App() {
   const [toastVisible,      setToastVisible]      = useState(false)
   const toastTimerRef = useRef(null)
 
+  // PWA install
+  const [deferredPrompt,    setDeferredPrompt]    = useState(null)
+  const [mostrarGuiaIOS,    setMostrarGuiaIOS]    = useState(false)
+  const [mostrarBtnPWA,     setMostrarBtnPWA]     = useState(false)
+
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user) {
@@ -50,6 +66,37 @@ export default function App() {
 
     return () => subscription.unsubscribe()
   }, [])
+
+  // PWA: mostrar botón si no está instalada
+  useEffect(() => {
+    if (estaInstalada()) return
+
+    if (esIOS()) {
+      setMostrarBtnPWA(true)
+      return
+    }
+
+    function onBeforeInstallPrompt(e) {
+      e.preventDefault()
+      setDeferredPrompt(e)
+      setMostrarBtnPWA(true)
+    }
+
+    window.addEventListener('beforeinstallprompt', onBeforeInstallPrompt)
+    return () => window.removeEventListener('beforeinstallprompt', onBeforeInstallPrompt)
+  }, [])
+
+  async function handleInstalarApp() {
+    if (esIOS()) {
+      setMostrarGuiaIOS(true)
+      return
+    }
+    if (!deferredPrompt) return
+    deferredPrompt.prompt()
+    const { outcome } = await deferredPrompt.userChoice
+    if (outcome === 'accepted') setMostrarBtnPWA(false)
+    setDeferredPrompt(null)
+  }
 
   function cerrarInfo() {
     localStorage.setItem(INFO_KEY, 'true')
@@ -127,6 +174,11 @@ export default function App() {
       </button>
 
       {/* Botones flotantes independientes */}
+      {mostrarBtnPWA && (
+        <button className="btn-pwa" onClick={handleInstalarApp} aria-label="Instalar app">
+          📲 App
+        </button>
+      )}
       <BuscadorCasetas onSeleccionar={item => setCeldaResaltada(item)} />
       <button className="btn-subir-foto" onClick={handleSubirFoto} aria-label="Subir foto">
         📷 Subir Foto
@@ -150,6 +202,32 @@ export default function App() {
       </div>
 
       {mostrarInfo && <InfoSheet onCerrar={cerrarInfo} />}
+
+      {/* Guía de instalación iOS */}
+      {mostrarGuiaIOS && (
+        <div className="bs-overlay" onClick={() => setMostrarGuiaIOS(false)}>
+          <div className="bs-panel pwa-guia-panel" onClick={e => e.stopPropagation()}>
+            <div className="bs-handle" />
+            <h2 className="bs-titulo">Añadir a tu móvil</h2>
+            <p className="pwa-guia-paso">
+              <span className="pwa-guia-num">1</span>
+              Pulsa el botón <strong>Compartir</strong> de Safari
+              <span className="pwa-guia-icono"> <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg></span>
+            </p>
+            <p className="pwa-guia-paso">
+              <span className="pwa-guia-num">2</span>
+              Selecciona <strong>"Añadir a pantalla de inicio"</strong>
+            </p>
+            <p className="pwa-guia-paso">
+              <span className="pwa-guia-num">3</span>
+              Pulsa <strong>"Añadir"</strong> y ¡listo!
+            </p>
+            <button className="btn-entra bs-reclamar" onClick={() => setMostrarGuiaIOS(false)}>
+              Entendido
+            </button>
+          </div>
+        </div>
+      )}
 
       {celdaPendiente && (
         <ConfirmarCelda
