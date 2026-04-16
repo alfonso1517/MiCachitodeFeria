@@ -176,7 +176,7 @@ export default function App() {
       {/* Botones flotantes independientes */}
       {mostrarBtnPWA && (
         <button className="btn-pwa" onClick={handleInstalarApp} aria-label="Instalar app">
-          📲 App
+          App
         </button>
       )}
       <BuscadorCasetas onSeleccionar={item => setCeldaResaltada(item)} />
