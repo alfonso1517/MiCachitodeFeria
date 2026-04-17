@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 
 const MAX_FOTOS = 10
 
-export default function ConfirmarCelda({ onConfirmar, onCerrar, direccion, fotoCount = 0 }) {
+export default function ConfirmarCelda({ onConfirmar, onCerrar, direccion, fotoCount = 0, sinLimite = false }) {
   useEffect(() => {
     function handleKeyDown(e) {
       if (e.key === 'Escape') onCerrar()
@@ -17,7 +17,7 @@ export default function ConfirmarCelda({ onConfirmar, onCerrar, direccion, fotoC
 
         <div className="bs-handle" />
 
-        {fotoCount > 0 ? (
+        {fotoCount > 0 && !sinLimite ? (
           <>
             <p className="cc-pregunta">¿Añadir tu foto?</p>
             <p className="cc-fotos-contador">{fotoCount}/{MAX_FOTOS} fotos ya subidas</p>

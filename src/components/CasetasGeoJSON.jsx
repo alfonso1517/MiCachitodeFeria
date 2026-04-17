@@ -27,6 +27,13 @@ const ESTILO_ESPECIAL = {
 const ESTILO_ESPECIAL_HOVER = {
   color: '#B8960C', fillColor: '#D4A843', weight: 1.5, opacity: 1, fillOpacity: 0.80,
 }
+// Zona unlimited (CUMPLE ALI Y CLAU)
+const ESTILO_UNLIMITED = {
+  color: '#9C1368', fillColor: '#E91E8C', weight: 2, opacity: 1, fillOpacity: 0.75,
+}
+const ESTILO_UNLIMITED_HOVER = {
+  color: '#9C1368', fillColor: '#F048A8', weight: 2, opacity: 1, fillOpacity: 0.90,
+}
 
 const MAX_FOTOS = 10
 
@@ -92,7 +99,9 @@ export default function CasetasGeoJSON({ usuario, onCeldaSeleccionada, onCeldaVi
     if (!casetasData) return
 
     function estiloBase(item) {
-      return item.isSpecial ? ESTILO_ESPECIAL : ESTILO_LIBRE
+      if (item.isUnlimited) return ESTILO_UNLIMITED
+      if (item.isSpecial)   return ESTILO_ESPECIAL
+      return ESTILO_LIBRE
     }
 
     function aplicarEstilos(mapa) {
@@ -106,14 +115,18 @@ export default function CasetasGeoJSON({ usuario, onCeldaSeleccionada, onCeldaVi
 
     const geoLayer = L.geoJSON(casetasData, {
       renderer,
-      style: (feature) =>
-        feature.properties.zone === 'special' ? { ...ESTILO_ESPECIAL } : { ...ESTILO_LIBRE },
+      style: (feature) => {
+        if (feature.properties.zone === 'unlimited') return { ...ESTILO_UNLIMITED }
+        if (feature.properties.zone === 'special')   return { ...ESTILO_ESPECIAL }
+        return { ...ESTILO_LIBRE }
+      },
 
       onEachFeature(feature, layer) {
         const { row, col, street, number, name, zone } = feature.properties
         const key = `${row}-${col}`
-        const isSpecial = zone === 'special'
-        featuresRef.current.set(key, { layer, row, col, street, number, name, isSpecial })
+        const isSpecial   = zone === 'special'
+        const isUnlimited = zone === 'unlimited'
+        featuresRef.current.set(key, { layer, row, col, street, number, name, isSpecial, isUnlimited })
 
         // ── Hover ──
         layer.on('mouseover', () => {
@@ -127,14 +140,17 @@ export default function CasetasGeoJSON({ usuario, onCeldaSeleccionada, onCeldaVi
           }
           hoveredKeyRef.current = key
           if (!celdasRef.current.get(key)) {
-            layer.setStyle(isSpecial ? ESTILO_ESPECIAL_HOVER : ESTILO_HOVER)
+            layer.setStyle(
+              isUnlimited ? ESTILO_UNLIMITED_HOVER :
+              isSpecial   ? ESTILO_ESPECIAL_HOVER  : ESTILO_HOVER
+            )
           }
         })
 
         layer.on('mouseout', () => {
           if (hoveredKeyRef.current === key) {
             hoveredKeyRef.current = null
-            layer.setStyle(celdasRef.current.get(key) ? ESTILO_RECLAMADA : estiloBase({ isSpecial }))
+            layer.setStyle(celdasRef.current.get(key) ? ESTILO_RECLAMADA : estiloBase({ isSpecial, isUnlimited }))
           }
         })
 
@@ -154,7 +170,9 @@ export default function CasetasGeoJSON({ usuario, onCeldaSeleccionada, onCeldaVi
             const dir = dirCompleta
               ? `<p class="popup-dir">${dirCompleta}</p>`
               : ''
-            const btnAnadir = (usuarioRef.current && count < MAX_FOTOS)
+            const entrada2    = celdasRef.current.get(key)
+            const ilimitada   = featuresRef.current.get(key)?.isUnlimited
+            const btnAnadir = (usuarioRef.current && (ilimitada || count < MAX_FOTOS))
               ? `<button class="popup-anadir" onclick="window.__añadirFotoFeria('${key}')">+ Añadir mi foto</button>`
               : ''
             L.popup({ className: 'popup-celda' })
@@ -166,7 +184,8 @@ export default function CasetasGeoJSON({ usuario, onCeldaSeleccionada, onCeldaVi
                   `<p class="popup-titulo">${primerFoto.owner_name || 'Anónimo'}</p>` +
                   dir +
                   pie +
-                  `<p class="popup-contador">${count}/${MAX_FOTOS} fotos · ` +
+                  (!ilimitada ? `<p class="popup-contador">${count}/${MAX_FOTOS} fotos · ` :
+                   `<p class="popup-contador">${count} fotos · `) +
                     `<span class="popup-ver-fotos" onclick="window.__verFotoFeria('${key}')">` +
                       `Ver todas →` +
                     `</span></p>` +
@@ -175,7 +194,7 @@ export default function CasetasGeoJSON({ usuario, onCeldaSeleccionada, onCeldaVi
               )
               .openOn(map)
           } else if (usuarioRef.current) {
-            onCeldaSeleccionadaRef.current?.({ row, col, street, number, name, fotoCount: 0 })
+            onCeldaSeleccionadaRef.current?.({ row, col, street, number, name, fotoCount: 0, sinLimite: isUnlimited })
           } else {
             L.popup({ className: 'popup-celda' })
               .setLatLng(e.latlng)
@@ -215,12 +234,13 @@ export default function CasetasGeoJSON({ usuario, onCeldaSeleccionada, onCeldaVi
       const feat = featuresRef.current.get(key)
       if (!feat || !usuarioRef.current) return
       onCeldaSeleccionadaRef.current?.({
-        row:       feat.row,
-        col:       feat.col,
-        street:    feat.street,
-        number:    feat.number,
-        name:      feat.name,
-        fotoCount: entrada?.count ?? 0,
+        row:        feat.row,
+        col:        feat.col,
+        street:     feat.street,
+        number:     feat.number,
+        name:       feat.name,
+        fotoCount:  entrada?.count ?? 0,
+        sinLimite:  feat.isUnlimited ?? false,
       })
     }
 

@@ -26,7 +26,7 @@ async function comprimirImagen(file) {
   })
 }
 
-export default function BottomSheet({ celda, usuario, onCerrar, onReclamada }) {
+export default function BottomSheet({ celda, usuario, onCerrar, onReclamada, sinLimite = false }) {
   const [foto,      setFoto]      = useState(null)
   const [preview,   setPreview]   = useState(null)
   const [pieDeFoto, setPieDeFoto] = useState('')
@@ -47,17 +47,19 @@ export default function BottomSheet({ celda, usuario, onCerrar, onReclamada }) {
     setError(null)
 
     try {
-      // Comprobar que la caseta no se ha llenado mientras tanto
-      const { count, error: countError } = await supabase
-        .from('celdas')
-        .select('*', { count: 'exact', head: true })
-        .eq('row', celda.row)
-        .eq('col', celda.col)
-      if (countError) throw countError
-      if (count >= MAX_FOTOS) {
-        setError(`Esta caseta ya tiene sus ${MAX_FOTOS} fotos. ¡Busca otra!`)
-        setCargando(false)
-        return
+      // Comprobar que la caseta no se ha llenado mientras tanto (salvo zona sin límite)
+      if (!sinLimite) {
+        const { count, error: countError } = await supabase
+          .from('celdas')
+          .select('*', { count: 'exact', head: true })
+          .eq('row', celda.row)
+          .eq('col', celda.col)
+        if (countError) throw countError
+        if (count >= MAX_FOTOS) {
+          setError(`Esta caseta ya tiene sus ${MAX_FOTOS} fotos. ¡Busca otra!`)
+          setCargando(false)
+          return
+        }
       }
 
       // 1. Comprimir imagen en cliente
