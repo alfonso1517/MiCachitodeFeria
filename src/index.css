@@ -474,6 +474,12 @@ html, body {
   cursor: zoom-in;
 }
 
+.popup-fecha {
+  font-size: 11px;
+  color: #bbb;
+  margin: 1px 0 0;
+}
+
 .popup-contador {
   font-size: 11px;
   color: #aaa;

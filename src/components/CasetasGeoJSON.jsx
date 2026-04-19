@@ -53,6 +53,16 @@ function agruparCeldas(data) {
   return mapa
 }
 
+const DIAS  = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado']
+const MESES = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic']
+function formatFecha(dateStr) {
+  if (!dateStr) return ''
+  const d = new Date(dateStr)
+  const h = String(d.getHours()).padStart(2,'0')
+  const m = String(d.getMinutes()).padStart(2,'0')
+  return `${DIAS[d.getDay()]} ${d.getDate()} ${MESES[d.getMonth()]} · ${h}:${m}`
+}
+
 // ─── Componente ───────────────────────────────────────────────────────────────
 export default function CasetasGeoJSON({ usuario, onCeldaSeleccionada, onCeldaVista, refrescar = 0, celdaResaltada }) {
   const map = useMap()
@@ -167,6 +177,9 @@ export default function CasetasGeoJSON({ usuario, onCeldaSeleccionada, onCeldaVi
             const pie = primerFoto.pie_de_foto
               ? `<p class="popup-pie">${primerFoto.pie_de_foto}</p>`
               : ''
+            const fecha = primerFoto.claimed_at
+              ? `<p class="popup-fecha">${formatFecha(primerFoto.claimed_at)}</p>`
+              : ''
             const dir = dirCompleta
               ? `<p class="popup-dir">${dirCompleta}</p>`
               : ''
@@ -184,6 +197,7 @@ export default function CasetasGeoJSON({ usuario, onCeldaSeleccionada, onCeldaVi
                   `<p class="popup-titulo">${primerFoto.owner_name || 'Anónimo'}</p>` +
                   dir +
                   pie +
+                  fecha +
                   (!ilimitada ? `<p class="popup-contador">${count}/${MAX_FOTOS} fotos · ` :
                    `<p class="popup-contador">${count} fotos · `) +
                     `<span class="popup-ver-fotos" onclick="window.__verFotoFeria('${key}')">` +
