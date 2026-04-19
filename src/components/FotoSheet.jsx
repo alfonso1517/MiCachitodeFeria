@@ -6,6 +6,20 @@ function formatDireccion({ street, number, name } = {}) {
   return name ? `${partes} — ${name}` : partes
 }
 
+const DIAS  = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado']
+const MESES = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic']
+
+function formatFecha(dateStr) {
+  if (!dateStr) return null
+  const d = new Date(dateStr)
+  const dia  = DIAS[d.getDay()]
+  const num  = d.getDate()
+  const mes  = MESES[d.getMonth()]
+  const h    = String(d.getHours()).padStart(2, '0')
+  const m    = String(d.getMinutes()).padStart(2, '0')
+  return `${dia} ${num} ${mes} · ${h}:${m}`
+}
+
 function tiempoRelativo(dateStr) {
   const diff = (Date.now() - new Date(dateStr)) / 1000
   if (diff < 60)    return 'ahora mismo'
@@ -123,6 +137,7 @@ export default function FotoSheet({ celda, usuario, onCerrar }) {
             <button className="fs-cerrar-x" onClick={onCerrar} aria-label="Cerrar">✕</button>
           </div>
           {fotoActual?.pie_de_foto && <p className="fs-pie">{fotoActual.pie_de_foto}</p>}
+          {fotoActual?.claimed_at && <p className="fs-fecha">{formatFecha(fotoActual.claimed_at)}</p>}
           {direccion && <p className="fs-direccion">{direccion}</p>}
         </div>
 
