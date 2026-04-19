@@ -174,11 +174,10 @@ export default function CasetasGeoJSON({ usuario, onCeldaSeleccionada, onCeldaVi
             // Caseta con fotos — mostrar popup con la más reciente
             const primerFoto = entrada.fotos[0]
             const count = entrada.count
-            const pie = primerFoto.pie_de_foto
-              ? `<p class="popup-pie">${primerFoto.pie_de_foto}</p>`
-              : ''
-            const fecha = primerFoto.claimed_at
-              ? `<p class="popup-fecha">${formatFecha(primerFoto.claimed_at)}</p>`
+            const fechaStr = primerFoto.claimed_at ? formatFecha(primerFoto.claimed_at) : ''
+            const metaParts = [primerFoto.pie_de_foto, fechaStr].filter(Boolean)
+            const meta = metaParts.length
+              ? `<p class="popup-meta">${metaParts.join(' · ')}</p>`
               : ''
             const dir = dirCompleta
               ? `<p class="popup-dir">${dirCompleta}</p>`
@@ -196,8 +195,7 @@ export default function CasetasGeoJSON({ usuario, onCeldaSeleccionada, onCeldaVi
                        ` onclick="window.__verFotoFeria('${key}')" alt="foto" />` +
                   `<p class="popup-titulo">${primerFoto.owner_name || 'Anónimo'}</p>` +
                   dir +
-                  pie +
-                  fecha +
+                  meta +
                   (!ilimitada ? `<p class="popup-contador">${count}/${MAX_FOTOS} fotos · ` :
                    `<p class="popup-contador">${count} fotos · `) +
                     `<span class="popup-ver-fotos" onclick="window.__verFotoFeria('${key}')">` +

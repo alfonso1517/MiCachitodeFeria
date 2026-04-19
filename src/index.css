@@ -432,52 +432,54 @@ html, body {
 }
 
 .popup-celda-inner {
-  padding: 16px 20px;
+  padding: 10px 14px;
   font-family: var(--fuente-ui);
-  font-size: 13px;
+  font-size: 12px;
   color: var(--negro-suave);
-  line-height: 1.6;
+  line-height: 1.4;
 }
 
 .popup-titulo {
   font-family: var(--fuente-logo);
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 700;
   color: var(--rojo-principal);
-  margin-bottom: 4px;
+  margin: 0 0 1px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .popup-foto {
-  width: 100%;
-  max-height: 160px;
+  display: block;
+  width: calc(100% + 28px);   /* sangra los 14px de padding a cada lado */
+  margin: -10px -14px 8px;    /* sube hasta el borde top del wrapper */
+  aspect-ratio: 3 / 2;
   object-fit: cover;
   border-radius: 16px 16px 0 0;
-  display: block;
-  margin: -16px -20px 12px;   /* sangra hasta los bordes del padding */
-  width: calc(100% + 40px);
 }
 
 .popup-dir {
-  font-size: 11px;
+  font-size: 12px;
   color: #888;
-  margin: 1px 0 0;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.popup-pie {
+.popup-meta {
   font-size: 12px;
-  color: #666;
-  margin-top: 2px;
+  color: #bbb;
+  margin: 1px 0 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* Foto del popup clicable para ver en grande */
 .popup-foto-zoom {
   cursor: zoom-in;
-}
-
-.popup-fecha {
-  font-size: 11px;
-  color: #bbb;
-  margin: 1px 0 0;
 }
 
 .popup-contador {
