@@ -27,13 +27,6 @@ const ESTILO_ESPECIAL = {
 const ESTILO_ESPECIAL_HOVER = {
   color: '#B8960C', fillColor: '#D4A843', weight: 1.5, opacity: 1, fillOpacity: 0.80,
 }
-// Zona unlimited (CUMPLE ALI Y CLAU)
-const ESTILO_UNLIMITED = {
-  color: '#9C1368', fillColor: '#E91E8C', weight: 2, opacity: 1, fillOpacity: 0.75,
-}
-const ESTILO_UNLIMITED_HOVER = {
-  color: '#9C1368', fillColor: '#F048A8', weight: 2, opacity: 1, fillOpacity: 0.90,
-}
 // El Pescaíto 🐟
 const ESTILO_PESCAITO = {
   color: '#1B7A35', fillColor: '#2ECC52', weight: 2, opacity: 1, fillOpacity: 0.70,
@@ -123,7 +116,6 @@ export default function CasetasGeoJSON({ usuario, onCeldaSeleccionada, onCeldaVi
     function estiloBase(item) {
       if (item.isMaestranza) return ESTILO_MAESTRANZA
       if (item.isPescaito)   return ESTILO_PESCAITO
-      if (item.isUnlimited)  return ESTILO_UNLIMITED
       if (item.isSpecial)    return ESTILO_ESPECIAL
       return ESTILO_LIBRE
     }
@@ -142,7 +134,6 @@ export default function CasetasGeoJSON({ usuario, onCeldaSeleccionada, onCeldaVi
       style: (feature) => {
         if (feature.properties.zone === 'maestranza') return { ...ESTILO_MAESTRANZA }
         if (feature.properties.zone === 'pescaito')   return { ...ESTILO_PESCAITO }
-        if (feature.properties.zone === 'unlimited')  return { ...ESTILO_UNLIMITED }
         if (feature.properties.zone === 'special')    return { ...ESTILO_ESPECIAL }
         return { ...ESTILO_LIBRE }
       },
@@ -151,10 +142,9 @@ export default function CasetasGeoJSON({ usuario, onCeldaSeleccionada, onCeldaVi
         const { row, col, street, number, name, zone } = feature.properties
         const key = `${row}-${col}`
         const isSpecial    = zone === 'special'
-        const isUnlimited  = zone === 'unlimited'
         const isPescaito   = zone === 'pescaito'
         const isMaestranza = zone === 'maestranza'
-        featuresRef.current.set(key, { layer, row, col, street, number, name, isSpecial, isUnlimited, isPescaito, isMaestranza })
+        featuresRef.current.set(key, { layer, row, col, street, number, name, isSpecial, isPescaito, isMaestranza })
 
         // Labels permanentes
         if (isPescaito) {
@@ -183,7 +173,6 @@ export default function CasetasGeoJSON({ usuario, onCeldaSeleccionada, onCeldaVi
             layer.setStyle(
               isMaestranza ? ESTILO_MAESTRANZA_HOVER :
               isPescaito   ? ESTILO_PESCAITO_HOVER   :
-              isUnlimited  ? ESTILO_UNLIMITED_HOVER  :
               isSpecial    ? ESTILO_ESPECIAL_HOVER   : ESTILO_HOVER
             )
           }
@@ -192,7 +181,7 @@ export default function CasetasGeoJSON({ usuario, onCeldaSeleccionada, onCeldaVi
         layer.on('mouseout', () => {
           if (hoveredKeyRef.current === key) {
             hoveredKeyRef.current = null
-            layer.setStyle(celdasRef.current.get(key) ? ESTILO_RECLAMADA : estiloBase({ isSpecial, isUnlimited, isPescaito, isMaestranza }))
+            layer.setStyle(celdasRef.current.get(key) ? ESTILO_RECLAMADA : estiloBase({ isSpecial, isPescaito, isMaestranza }))
           }
         })
 

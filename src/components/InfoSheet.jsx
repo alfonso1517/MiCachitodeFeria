@@ -5,7 +5,7 @@ export default function InfoSheet({ onCerrar }) {
 
         <div className="bs-handle" />
 
-        <h2 className="auth-titulo">¡Bienvenido a<br />MiCachoDeFeria! 🎪</h2>
+        <h2 className="auth-titulo">¡Bienvenido a<br />MiCachoDeFeria!</h2>
 
         <p className="info-intro">
           Entre todos vamos a construir el <strong>mosaico fotográfico de la Feria de Sevilla 2026</strong>.
