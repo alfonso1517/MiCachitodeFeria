@@ -42,8 +42,6 @@ const ESTILO_PESCAITO_HOVER = {
   color: '#1B7A35', fillColor: '#3DDC66', weight: 2, opacity: 1, fillOpacity: 0.88,
 }
 
-const MAX_FOTOS = 10
-
 // Agrupa filas de BD por (row, col), ordena fotos por claimed_at DESC
 function agruparCeldas(data) {
   const mapa = new Map()
@@ -203,9 +201,7 @@ export default function CasetasGeoJSON({ usuario, onCeldaSeleccionada, onCeldaVi
             const dir = dirCompleta
               ? `<p class="popup-dir">${dirCompleta}</p>`
               : ''
-            const entrada2    = celdasRef.current.get(key)
-            const ilimitada   = featuresRef.current.get(key)?.isUnlimited || featuresRef.current.get(key)?.isPescaito
-            const btnAnadir = (usuarioRef.current && (ilimitada || count < MAX_FOTOS))
+            const btnAnadir = usuarioRef.current
               ? `<button class="popup-anadir" onclick="window.__añadirFotoFeria('${key}')">+ Añadir mi foto</button>`
               : ''
             L.popup({ className: 'popup-celda' })
@@ -217,8 +213,7 @@ export default function CasetasGeoJSON({ usuario, onCeldaSeleccionada, onCeldaVi
                   `<p class="popup-titulo">${primerFoto.owner_name || 'Anónimo'}</p>` +
                   dir +
                   meta +
-                  (!ilimitada ? `<p class="popup-contador">${count}/${MAX_FOTOS} fotos · ` :
-                   `<p class="popup-contador">${count} fotos · `) +
+                  `<p class="popup-contador">${count} fotos · ` +
                     `<span class="popup-ver-fotos" onclick="window.__verFotoFeria('${key}')">` +
                       `Ver todas →` +
                     `</span></p>` +
@@ -227,7 +222,7 @@ export default function CasetasGeoJSON({ usuario, onCeldaSeleccionada, onCeldaVi
               )
               .openOn(map)
           } else if (usuarioRef.current) {
-            onCeldaSeleccionadaRef.current?.({ row, col, street, number, name, fotoCount: 0, sinLimite: isUnlimited || isPescaito })
+            onCeldaSeleccionadaRef.current?.({ row, col, street, number, name })
           } else {
             L.popup({ className: 'popup-celda' })
               .setLatLng(e.latlng)
@@ -267,13 +262,11 @@ export default function CasetasGeoJSON({ usuario, onCeldaSeleccionada, onCeldaVi
       const feat = featuresRef.current.get(key)
       if (!feat || !usuarioRef.current) return
       onCeldaSeleccionadaRef.current?.({
-        row:        feat.row,
-        col:        feat.col,
-        street:     feat.street,
-        number:     feat.number,
-        name:       feat.name,
-        fotoCount:  entrada?.count ?? 0,
-        sinLimite:  feat.isUnlimited ?? false,
+        row:    feat.row,
+        col:    feat.col,
+        street: feat.street,
+        number: feat.number,
+        name:   feat.name,
       })
     }
 

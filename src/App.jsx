@@ -234,8 +234,6 @@ export default function App() {
           onConfirmar={handleConfirmar}
           onCerrar={() => setCeldaPendiente(null)}
           direccion={formatDireccion(celdaPendiente)}
-          fotoCount={celdaPendiente.fotoCount ?? 0}
-          sinLimite={celdaPendiente.sinLimite ?? false}
         />
       )}
 
@@ -261,7 +259,6 @@ export default function App() {
         <BottomSheet
           celda={celdaSeleccionada}
           usuario={usuario}
-          sinLimite={celdaSeleccionada.sinLimite ?? false}
           onCerrar={() => setCeldaSeleccionada(null)}
           onReclamada={() => {
             setCeldaSeleccionada(null)
