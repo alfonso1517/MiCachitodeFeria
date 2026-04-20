@@ -837,6 +837,22 @@ html, body {
   margin: 0;
 }
 
+/* ── El Pescaíto tooltip label ── */
+.leaflet-tooltip.label-pescaito {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  color: #1B7A35;
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+  text-shadow: 0 1px 3px rgba(255,255,255,0.9);
+  pointer-events: none;
+}
+.leaflet-tooltip.label-pescaito::before {
+  display: none;
+}
+
 /* ── Sección de comentarios ── */
 .fs-comentarios {
   flex: 1 1 0;

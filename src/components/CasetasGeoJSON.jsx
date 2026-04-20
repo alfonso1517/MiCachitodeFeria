@@ -34,6 +34,13 @@ const ESTILO_UNLIMITED = {
 const ESTILO_UNLIMITED_HOVER = {
   color: '#9C1368', fillColor: '#F048A8', weight: 2, opacity: 1, fillOpacity: 0.90,
 }
+// El Pescaíto 🐟
+const ESTILO_PESCAITO = {
+  color: '#1B7A35', fillColor: '#2ECC52', weight: 2, opacity: 1, fillOpacity: 0.70,
+}
+const ESTILO_PESCAITO_HOVER = {
+  color: '#1B7A35', fillColor: '#3DDC66', weight: 2, opacity: 1, fillOpacity: 0.88,
+}
 
 const MAX_FOTOS = 10
 
@@ -109,6 +116,7 @@ export default function CasetasGeoJSON({ usuario, onCeldaSeleccionada, onCeldaVi
     if (!casetasData) return
 
     function estiloBase(item) {
+      if (item.isPescaito)  return ESTILO_PESCAITO
       if (item.isUnlimited) return ESTILO_UNLIMITED
       if (item.isSpecial)   return ESTILO_ESPECIAL
       return ESTILO_LIBRE
@@ -126,6 +134,7 @@ export default function CasetasGeoJSON({ usuario, onCeldaSeleccionada, onCeldaVi
     const geoLayer = L.geoJSON(casetasData, {
       renderer,
       style: (feature) => {
+        if (feature.properties.zone === 'pescaito')  return { ...ESTILO_PESCAITO }
         if (feature.properties.zone === 'unlimited') return { ...ESTILO_UNLIMITED }
         if (feature.properties.zone === 'special')   return { ...ESTILO_ESPECIAL }
         return { ...ESTILO_LIBRE }
@@ -136,7 +145,18 @@ export default function CasetasGeoJSON({ usuario, onCeldaSeleccionada, onCeldaVi
         const key = `${row}-${col}`
         const isSpecial   = zone === 'special'
         const isUnlimited = zone === 'unlimited'
-        featuresRef.current.set(key, { layer, row, col, street, number, name, isSpecial, isUnlimited })
+        const isPescaito  = zone === 'pescaito'
+        featuresRef.current.set(key, { layer, row, col, street, number, name, isSpecial, isUnlimited, isPescaito })
+
+        // Label permanente para el Pescaíto
+        if (isPescaito) {
+          layer.bindTooltip(name, {
+            permanent: true,
+            direction: 'center',
+            interactive: false,
+            className: 'label-pescaito',
+          })
+        }
 
         // ── Hover ──
         layer.on('mouseover', () => {
@@ -151,6 +171,7 @@ export default function CasetasGeoJSON({ usuario, onCeldaSeleccionada, onCeldaVi
           hoveredKeyRef.current = key
           if (!celdasRef.current.get(key)) {
             layer.setStyle(
+              isPescaito  ? ESTILO_PESCAITO_HOVER  :
               isUnlimited ? ESTILO_UNLIMITED_HOVER :
               isSpecial   ? ESTILO_ESPECIAL_HOVER  : ESTILO_HOVER
             )
@@ -160,7 +181,7 @@ export default function CasetasGeoJSON({ usuario, onCeldaSeleccionada, onCeldaVi
         layer.on('mouseout', () => {
           if (hoveredKeyRef.current === key) {
             hoveredKeyRef.current = null
-            layer.setStyle(celdasRef.current.get(key) ? ESTILO_RECLAMADA : estiloBase({ isSpecial, isUnlimited }))
+            layer.setStyle(celdasRef.current.get(key) ? ESTILO_RECLAMADA : estiloBase({ isSpecial, isUnlimited, isPescaito }))
           }
         })
 
@@ -183,7 +204,7 @@ export default function CasetasGeoJSON({ usuario, onCeldaSeleccionada, onCeldaVi
               ? `<p class="popup-dir">${dirCompleta}</p>`
               : ''
             const entrada2    = celdasRef.current.get(key)
-            const ilimitada   = featuresRef.current.get(key)?.isUnlimited
+            const ilimitada   = featuresRef.current.get(key)?.isUnlimited || featuresRef.current.get(key)?.isPescaito
             const btnAnadir = (usuarioRef.current && (ilimitada || count < MAX_FOTOS))
               ? `<button class="popup-anadir" onclick="window.__añadirFotoFeria('${key}')">+ Añadir mi foto</button>`
               : ''
@@ -206,7 +227,7 @@ export default function CasetasGeoJSON({ usuario, onCeldaSeleccionada, onCeldaVi
               )
               .openOn(map)
           } else if (usuarioRef.current) {
-            onCeldaSeleccionadaRef.current?.({ row, col, street, number, name, fotoCount: 0, sinLimite: isUnlimited })
+            onCeldaSeleccionadaRef.current?.({ row, col, street, number, name, fotoCount: 0, sinLimite: isUnlimited || isPescaito })
           } else {
             L.popup({ className: 'popup-celda' })
               .setLatLng(e.latlng)
