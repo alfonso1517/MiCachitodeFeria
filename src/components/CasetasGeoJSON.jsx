@@ -41,6 +41,13 @@ const ESTILO_PESCAITO = {
 const ESTILO_PESCAITO_HOVER = {
   color: '#1B7A35', fillColor: '#3DDC66', weight: 2, opacity: 1, fillOpacity: 0.88,
 }
+// La Maestranza 🐂
+const ESTILO_MAESTRANZA = {
+  color: '#B8892E', fillColor: '#D4A55A', weight: 2, opacity: 1, fillOpacity: 0.65,
+}
+const ESTILO_MAESTRANZA_HOVER = {
+  color: '#B8892E', fillColor: '#E0B870', weight: 2, opacity: 1, fillOpacity: 0.85,
+}
 
 // Agrupa filas de BD por (row, col), ordena fotos por claimed_at DESC
 function agruparCeldas(data) {
@@ -114,9 +121,10 @@ export default function CasetasGeoJSON({ usuario, onCeldaSeleccionada, onCeldaVi
     if (!casetasData) return
 
     function estiloBase(item) {
-      if (item.isPescaito)  return ESTILO_PESCAITO
-      if (item.isUnlimited) return ESTILO_UNLIMITED
-      if (item.isSpecial)   return ESTILO_ESPECIAL
+      if (item.isMaestranza) return ESTILO_MAESTRANZA
+      if (item.isPescaito)   return ESTILO_PESCAITO
+      if (item.isUnlimited)  return ESTILO_UNLIMITED
+      if (item.isSpecial)    return ESTILO_ESPECIAL
       return ESTILO_LIBRE
     }
 
@@ -132,27 +140,31 @@ export default function CasetasGeoJSON({ usuario, onCeldaSeleccionada, onCeldaVi
     const geoLayer = L.geoJSON(casetasData, {
       renderer,
       style: (feature) => {
-        if (feature.properties.zone === 'pescaito')  return { ...ESTILO_PESCAITO }
-        if (feature.properties.zone === 'unlimited') return { ...ESTILO_UNLIMITED }
-        if (feature.properties.zone === 'special')   return { ...ESTILO_ESPECIAL }
+        if (feature.properties.zone === 'maestranza') return { ...ESTILO_MAESTRANZA }
+        if (feature.properties.zone === 'pescaito')   return { ...ESTILO_PESCAITO }
+        if (feature.properties.zone === 'unlimited')  return { ...ESTILO_UNLIMITED }
+        if (feature.properties.zone === 'special')    return { ...ESTILO_ESPECIAL }
         return { ...ESTILO_LIBRE }
       },
 
       onEachFeature(feature, layer) {
         const { row, col, street, number, name, zone } = feature.properties
         const key = `${row}-${col}`
-        const isSpecial   = zone === 'special'
-        const isUnlimited = zone === 'unlimited'
-        const isPescaito  = zone === 'pescaito'
-        featuresRef.current.set(key, { layer, row, col, street, number, name, isSpecial, isUnlimited, isPescaito })
+        const isSpecial    = zone === 'special'
+        const isUnlimited  = zone === 'unlimited'
+        const isPescaito   = zone === 'pescaito'
+        const isMaestranza = zone === 'maestranza'
+        featuresRef.current.set(key, { layer, row, col, street, number, name, isSpecial, isUnlimited, isPescaito, isMaestranza })
 
-        // Label permanente para el Pescaíto
+        // Labels permanentes
         if (isPescaito) {
           layer.bindTooltip(name, {
-            permanent: true,
-            direction: 'center',
-            interactive: false,
-            className: 'label-pescaito',
+            permanent: true, direction: 'center', interactive: false, className: 'label-pescaito',
+          })
+        }
+        if (isMaestranza) {
+          layer.bindTooltip(name, {
+            permanent: true, direction: 'center', interactive: false, className: 'label-maestranza',
           })
         }
 
@@ -169,9 +181,10 @@ export default function CasetasGeoJSON({ usuario, onCeldaSeleccionada, onCeldaVi
           hoveredKeyRef.current = key
           if (!celdasRef.current.get(key)) {
             layer.setStyle(
-              isPescaito  ? ESTILO_PESCAITO_HOVER  :
-              isUnlimited ? ESTILO_UNLIMITED_HOVER :
-              isSpecial   ? ESTILO_ESPECIAL_HOVER  : ESTILO_HOVER
+              isMaestranza ? ESTILO_MAESTRANZA_HOVER :
+              isPescaito   ? ESTILO_PESCAITO_HOVER   :
+              isUnlimited  ? ESTILO_UNLIMITED_HOVER  :
+              isSpecial    ? ESTILO_ESPECIAL_HOVER   : ESTILO_HOVER
             )
           }
         })
@@ -179,7 +192,7 @@ export default function CasetasGeoJSON({ usuario, onCeldaSeleccionada, onCeldaVi
         layer.on('mouseout', () => {
           if (hoveredKeyRef.current === key) {
             hoveredKeyRef.current = null
-            layer.setStyle(celdasRef.current.get(key) ? ESTILO_RECLAMADA : estiloBase({ isSpecial, isUnlimited, isPescaito }))
+            layer.setStyle(celdasRef.current.get(key) ? ESTILO_RECLAMADA : estiloBase({ isSpecial, isUnlimited, isPescaito, isMaestranza }))
           }
         })
 
