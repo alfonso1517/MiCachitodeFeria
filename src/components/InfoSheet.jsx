@@ -15,7 +15,7 @@ export default function InfoSheet({ onCerrar }) {
 
         <p className="info-texto">
           Busca tu caseta por nombre, calle o número, o simplemente tócala en el mapa.
-          Pulsa <strong>"Subir Foto"</strong> y elige tu caseta. Cada caseta admite hasta 10 fotos — ¡deja tu huella!
+          Pulsa <strong>"Subir Foto"</strong> y elige tu caseta. Cada caseta admite todas las fotos que quieras — ¡deja tu huella!
         </p>
 
         <p className="info-cierre">¡A por tu cacho de feria!</p>
