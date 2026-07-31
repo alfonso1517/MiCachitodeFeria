@@ -1,12 +1,12 @@
 {
-  "name": "MiCachoDeFeria",
-  "short_name": "MiCachoDeFeria",
-  "description": "El mosaico fotográfico de la Feria de Sevilla 2026",
+  "name": "(Is)lantilla",
+  "short_name": "(Is)lantilla",
+  "description": "El mosaico fotográfico del verano en Islantilla y La Antilla",
   "start_url": "/",
   "display": "standalone",
   "orientation": "portrait",
-  "theme_color": "#C8372D",
-  "background_color": "#FAF7F2",
+  "theme_color": "#1B9AA6",
+  "background_color": "#FAFAFA",
   "icons": [
     {
       "src": "/icon-192.png",

@@ -1,16 +1,22 @@
 /* =============================================
-   PALETA DE COLORES — MiCachoDeFeria
+   PALETA DE COLORES — (Is)lantilla
+   Turquesa = protagonista · Amarillo = chispa puntual · Naranja = acción
    ============================================= */
 :root {
-  --rojo-principal: #C8372D;
-  --albero:         #D4A55A;   /* solo para el polígono del Real */
-  --blanco-cal:     #FAF7F2;
-  --negro-suave:    #1C1C1C;
-  --gris-claro:     #E8E4DE;
+  --turquesa:       #1B9AA6;   /* color de marca, botones primarios, estados activos */
+  --amarillo:       #F5B800;   /* acento puntual: badges, highlights — nunca grandes superficies */
+  --naranja:        #FF6B35;   /* reservado para el icono de marca y el CTA de subir foto */
+  --rojo-error:     #D6473B;   /* solo mensajes de error, no forma parte de la marca */
 
-  /* Tipografías importadas desde Google Fonts */
-  --fuente-ui:   'Inter', system-ui, sans-serif;
-  --fuente-logo: 'Fraunces', Georgia, serif;
+  --blanco-cal:     #FAFAFA;
+  --gris-fondo:     #F2F2F2;
+  --negro-suave:    #0A0A0A;
+  --gris-texto:     #333333;
+  --gris-claro:     #E5E5E5;
+
+  /* Tipografía única — geométrica sans-serif. La manuscrita vive solo en el logo (PNG) */
+  --fuente-ui:   'Manrope', system-ui, sans-serif;
+  --fuente-logo: 'Manrope', system-ui, sans-serif;
 
   /* Sombra estándar de paneles: neutra */
   --sombra-panel: 0 10px 30px rgba(0, 0, 0, 0.10);
@@ -53,44 +59,86 @@ html, body {
 }
 
 /* =============================================
-   HEADER — píldora flotante, centrada
-   16px de margen para que respire sobre el mapa
+   TOP STACK — contenedor que apila header + toolbar
+   El gap entre ambos lo pone flexbox, no números a ojo — así el header
+   puede crecer (logo grande, nombre largo...) sin que nada se pise debajo.
    ============================================= */
-#header {
+#top-stack {
   position: fixed;
-  top: 16px;
-  left: 50%;
-  transform: translateX(-50%);
+  top: max(32px, env(safe-area-inset-top, 0px) + 16px);
+  left: 16px;
+  right: 16px;
+  /* left+right (en vez de transform) para no crear un nuevo contenedor de
+     posicionamiento — el buscador, que es "position: fixed", vive dentro
+     de este árbol y necesita seguir midiéndose contra el viewport real */
+  max-width: 560px;
+  margin: 0 auto;
   z-index: 1000;
 
-  /* Ancho: pantalla menos 32px de margen (16px cada lado) */
-  width: calc(100% - 32px);
-  max-width: 560px;           /* en escritorio no se estira demasiado */
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 14px;
+}
+
+/* =============================================
+   HEADER — píldora flotante, centrada
+   ============================================= */
+#header {
+  align-self: stretch;
 
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 16px 10px 20px;
+  padding: 7px 7px 7px 20px;
 
   /* Píldora con cristal */
   border-radius: 40px;
-  background: rgba(250, 247, 242, 0.82);
+  background: rgba(250, 250, 250, 0.82);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(232, 228, 222, 0.7);
+  border: 1px solid rgba(230, 230, 230, 0.7);
   box-shadow: var(--sombra-panel);
 }
 
 .header-logo-wrap {
-  flex: 1;
   display: flex;
   align-items: center;
+  overflow: hidden;
+  flex-shrink: 0;
 }
 
 .logo-img {
-  width: 100%;
-  height: auto;
+  height: 62px;
+  width: auto;
+  max-width: 260px;
+  object-fit: contain;
   display: block;
+}
+
+/* Icono de usuario en el header — abre el modal de nombre, tanto para
+   ponerlo la primera vez como para cambiarlo después. Con anillo blanco
+   y sombra propia para que se lea como un avatar de verdad. */
+.btn-usuario {
+  flex-shrink: 0;
+  width: 52px;
+  height: 52px;
+  padding: 0;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  background: var(--blanco-cal);
+  color: var(--turquesa);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.15s ease;
+}
+
+.btn-usuario:active { opacity: 0.8; }
+@media (hover: hover) {
+  .btn-usuario:hover { opacity: 0.88; }
 }
 
 /* =============================================
@@ -102,7 +150,7 @@ html, body {
   min-width: 44px;
   padding: 0 18px;
 
-  background: var(--rojo-principal);
+  background: var(--turquesa);
   color: #fff;
   border: none;
   border-radius: 8px;
@@ -130,7 +178,7 @@ html, body {
 .header-usuario {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 6px;
 }
 
 .header-nombre {
@@ -169,7 +217,7 @@ html, body {
   min-width: 32px;
   padding: 0;
   background: transparent;
-  color: var(--rojo-principal);
+  color: var(--turquesa);
   border: none;
   border-radius: 50%;
   font-size: 16px;
@@ -193,7 +241,7 @@ html, body {
   position: fixed;
   inset: 0;
   z-index: 2000;
-  background: rgba(28, 28, 28, 0.45);
+  background: rgba(10, 10, 10, 0.45);
   backdrop-filter: blur(4px);
   display: flex;
   align-items: flex-end;       /* bottom sheet en móvil */
@@ -254,7 +302,7 @@ html, body {
 }
 
 .auth-input:focus {
-  border-color: var(--rojo-principal);
+  border-color: var(--turquesa);
 }
 
 .auth-btn {
@@ -266,7 +314,7 @@ html, body {
 
 .auth-error {
   font-size: 13px;
-  color: var(--rojo-feria);
+  color: var(--rojo-error);
   text-align: center;
 }
 
@@ -276,39 +324,40 @@ html, body {
 }
 
 /* =============================================
-   BOTÓN DE INFORMACIÓN FLOTANTE
+   GRUPO SUPERIOR DERECHO — buscar, info, instalar app
+   Un único grupo horizontal y compacto, todo iconos circulares
    ============================================= */
-.btn-info {
-  position: fixed;
-  top: 88px;
-  right: 16px;
-  z-index: 1000;
+.toolbar-superior {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
 
-  width:  44px;
-  height: 44px;
+.toolbar-superior .btn-info,
+.toolbar-superior .btn-buscar,
+.toolbar-superior .btn-pwa {
+  position: static;
+  width: 46px;
+  height: 46px;
   border-radius: 50%;
   border: none;
   cursor: pointer;
+  padding: 0;
 
   background: var(--blanco-cal);
   box-shadow: var(--sombra-panel);
-  color: var(--negro-suave);
+  color: var(--turquesa);
 
   display: flex;
   align-items: center;
   justify-content: center;
 
-  font-style: italic;
-  font-family: Georgia, serif;
-  font-size: 20px;
-  font-weight: 700;
-
   transition: opacity 0.15s ease;
 }
 
-.btn-info:active { opacity: 0.7; }
+.toolbar-superior button:active { opacity: 0.7; }
 @media (hover: hover) {
-  .btn-info:hover { opacity: 0.85; }
+  .toolbar-superior button:hover { opacity: 0.85; }
 }
 
 /* =============================================
@@ -341,7 +390,7 @@ html, body {
   content: '·';
   position: absolute;
   left: 0;
-  color: var(--albero);
+  color: var(--amarillo);
   font-weight: 700;
 }
 
@@ -350,7 +399,7 @@ html, body {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  color: var(--albero);
+  color: var(--amarillo);
   margin: 4px 0 0;
 }
 
@@ -365,7 +414,7 @@ html, body {
   font-family: var(--fuente-logo);
   font-size: 18px;
   font-weight: 700;
-  color: var(--rojo-principal);
+  color: var(--turquesa);
   text-align: center;
 }
 
@@ -394,7 +443,7 @@ html, body {
 }
 
 .poi-tooltip.leaflet-tooltip {
-  background: rgba(250, 247, 242, 0.95);
+  background: rgba(250, 250, 250, 0.95);
   border: 1px solid var(--gris-claro);
   border-radius: 20px;              /* píldora, igual que el header */
   box-shadow: var(--sombra-panel);
@@ -412,12 +461,49 @@ html, body {
 }
 
 /* =============================================
+   MARCADORES DE LUGARES — Islantilla
+   Círculo con emoji de categoría + contador de fotos
+   ============================================= */
+.lugar-marker {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--blanco-cal);
+  border: 2px solid var(--turquesa);
+  box-shadow: var(--sombra-panel);
+  color: var(--turquesa);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  animation: poi-pop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.lugar-marker-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 8px;
+  background: var(--amarillo);
+  color: var(--negro-suave);
+  font-family: var(--fuente-ui);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 16px;
+  text-align: center;
+}
+
+/* =============================================
    POPUP DE CELDA (provisional — Fase 5 lo reemplaza)
    ============================================= */
 .popup-celda .leaflet-popup-content-wrapper {
   border-radius: 24px;
   box-shadow: var(--sombra-panel);
-  border: 1px solid rgba(232, 228, 222, 0.6);
+  border: 1px solid rgba(230, 230, 230, 0.6);
   padding: 0;
   background: var(--blanco-cal);
 }
@@ -443,7 +529,7 @@ html, body {
   font-family: var(--fuente-logo);
   font-size: 14px;
   font-weight: 700;
-  color: var(--rojo-principal);
+  color: var(--turquesa);
   margin: 0 0 1px;
   white-space: nowrap;
   overflow: hidden;
@@ -490,7 +576,7 @@ html, body {
 }
 
 .popup-ver-fotos {
-  color: var(--rojo-principal);
+  color: var(--turquesa);
   cursor: pointer;
   text-decoration: underline;
   text-underline-offset: 2px;
@@ -501,7 +587,7 @@ html, body {
   width: 100%;
   margin-top: 6px;
   padding: 6px 0;
-  background: var(--rojo-principal);
+  background: var(--naranja);
   color: #fff;
   border: none;
   border-radius: 8px;
@@ -520,7 +606,7 @@ html, body {
   /* transform: translateZ(0) fuerza Safari a crear su propia capa de compositing
      por encima del header (que tiene backdrop-filter y crea su propia capa) */
   transform: translateZ(0);
-  background: rgba(28, 28, 28, 0.45);
+  background: rgba(10, 10, 10, 0.45);
   backdrop-filter: blur(4px);
   display: flex;
   align-items: flex-end;
@@ -592,16 +678,16 @@ html, body {
 }
 
 .bs-foto-btn:active {
-  border-color: var(--rojo-principal);
-  background: rgba(200, 55, 45, 0.06);
-  color: var(--rojo-principal);
+  border-color: var(--turquesa);
+  background: rgba(27, 154, 166, 0.06);
+  color: var(--turquesa);
 }
 
 @media (hover: hover) {
   .bs-foto-btn:hover {
-    border-color: var(--rojo-principal);
-    background: rgba(200, 55, 45, 0.06);
-    color: var(--rojo-principal);
+    border-color: var(--turquesa);
+    background: rgba(27, 154, 166, 0.06);
+    color: var(--turquesa);
   }
 }
 
@@ -628,7 +714,7 @@ html, body {
   bottom: 10px;
   right: 10px;
   padding: 6px 14px;
-  background: rgba(28, 28, 28, 0.65);
+  background: rgba(10, 10, 10, 0.65);
   color: #fff;
   border: none;
   border-radius: 20px;
@@ -654,12 +740,12 @@ html, body {
 }
 
 .bs-pie-input:focus {
-  border-color: var(--rojo-principal);
+  border-color: var(--turquesa);
 }
 
 .bs-error {
   font-size: 13px;
-  color: var(--rojo-feria);
+  color: var(--rojo-error);
   text-align: center;
 }
 
@@ -676,6 +762,11 @@ html, body {
   cursor: not-allowed;
 }
 
+/* CTA de acción principal (subir foto) — único uso del naranja de marca */
+.btn-entra.btn-cta {
+  background: var(--naranja);
+}
+
 /* =============================================
    CONFIRMAR CELDA — popup ligero de confirmación
    ============================================= */
@@ -683,7 +774,7 @@ html, body {
   position: fixed;
   inset: 0;
   z-index: 2000;
-  background: rgba(28, 28, 28, 0.25);
+  background: rgba(10, 10, 10, 0.25);
   display: flex;
   align-items: flex-end;
   justify-content: center;
@@ -712,7 +803,7 @@ html, body {
 
 .cc-fotos-contador {
   font-size: 13px;
-  color: var(--albero);
+  color: var(--amarillo);
   font-weight: 600;
   text-align: center;
   margin: -4px 0 0;
@@ -730,6 +821,7 @@ html, body {
   height: 48px;
   border-radius: 14px;
   font-size: 15px;
+  background: var(--naranja);
 }
 
 /* =============================================
@@ -801,7 +893,7 @@ html, body {
   font-family: var(--fuente-logo);
   font-size: 16px;
   font-weight: 700;
-  color: var(--rojo-principal);
+  color: var(--turquesa);
 }
 
 .fs-cerrar-x {
@@ -919,7 +1011,7 @@ html, body {
 .fs-comentario-autor {
   font-size: 12px;
   font-weight: 600;
-  color: var(--rojo-principal);
+  color: var(--turquesa);
 }
 
 .fs-comentario-tiempo {
@@ -956,7 +1048,7 @@ html, body {
   color: var(--negro-suave);
 }
 .fs-comentario-field:focus {
-  border-color: var(--rojo-principal);
+  border-color: var(--turquesa);
 }
 
 .fs-comentario-enviar {
@@ -965,7 +1057,7 @@ html, body {
   padding: 0 16px;
   border-radius: 20px;
   border: none;
-  background: var(--rojo-principal);
+  background: var(--turquesa);
   color: #fff;
   font-size: 13px;
   font-weight: 600;
@@ -978,60 +1070,33 @@ html, body {
 /* =============================================
    BUSCADOR DE CASETAS
    ============================================= */
-/* Píldoras flotantes de acción — cada una con posición fija propia */
-/* Columna derecha: btn-buscar (144px) → btn-subir-foto (200px) */
-/* Esquina superior izquierda: btn-pwa */
-.btn-pwa {
-  position: fixed;
-  top: 88px;
-  left: 16px;
-  z-index: 1001;
-}
-
-.btn-buscar {
-  position: fixed;
-  top: 144px;
-  right: 16px;
-  z-index: 1001;
-}
-
+/* FAB de subir foto — aparte, abajo a la derecha, mucho más grande que el
+   resto de iconos: es la única acción que de verdad debe destacar */
 .btn-subir-foto {
   position: fixed;
-  top: 200px;   /* 144 + 44px botón + 12px gap */
-  right: 16px;
+  bottom: 28px;
+  right: 20px;
   z-index: 1001;
-}
 
-.btn-pwa,
-.btn-buscar,
-.btn-subir-foto {
-  height: 44px;
-  padding: 0 18px;
-  border-radius: 22px;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
   border: none;
   cursor: pointer;
 
-  background: var(--rojo-principal);
-  box-shadow: var(--sombra-panel);
+  background: var(--naranja);
+  box-shadow: 0 8px 20px rgba(255, 107, 53, 0.4);
   color: #fff;
-  font-family: var(--fuente-logo);
-  font-size: 14px;
-  font-weight: 600;
-  white-space: nowrap;
 
   display: flex;
   align-items: center;
-  gap: 6px;
   justify-content: center;
 
   transition: opacity 0.15s ease;
 }
-.btn-pwa:active,
-.btn-buscar:active,
+
 .btn-subir-foto:active { opacity: 0.8; }
 @media (hover: hover) {
-  .btn-pwa:hover,
-  .btn-buscar:hover,
   .btn-subir-foto:hover { opacity: 0.88; }
 }
 
@@ -1057,7 +1122,7 @@ html, body {
   width: 26px;
   height: 26px;
   border-radius: 50%;
-  background: var(--rojo-principal);
+  background: var(--turquesa);
   color: #fff;
   font-family: var(--fuente-logo);
   font-weight: 700;
@@ -1070,7 +1135,7 @@ html, body {
 .pwa-guia-icono {
   display: inline-flex;
   align-items: center;
-  color: var(--rojo-principal);
+  color: var(--turquesa);
 }
 
 /* Toast guía */
@@ -1081,7 +1146,7 @@ html, body {
   transform: translateX(-50%);
   z-index: 1100;
 
-  background: rgba(30, 20, 10, 0.88);
+  background: rgba(10, 10, 10, 0.88);
   color: #fff;
   font-size: 14px;
   font-weight: 600;
@@ -1107,7 +1172,7 @@ html, body {
 /* Panel principal */
 .buscador-panel {
   position: fixed;
-  top: 76px;              /* justo debajo de la píldora del header */
+  top: 190px;             /* justo debajo del header + la fila de iconos */
   left: 16px;
   right: 16px;
   width: auto;
@@ -1116,7 +1181,7 @@ html, body {
   /* left+right en lugar de transform para evitar desbordamiento en móvil */
   z-index: 1001;
 
-  background: rgba(250, 247, 242, 0.97);
+  background: rgba(250, 250, 250, 0.97);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border-radius: 20px;
@@ -1162,9 +1227,9 @@ html, body {
   transition: background 0.1s;
 }
 .buscador-item:last-child { border-bottom: none; }
-.buscador-item:active { background: rgba(200,55,45,0.08); }
+.buscador-item:active { background: rgba(27,154,166,0.08); }
 @media (hover: hover) {
-  .buscador-item:hover { background: rgba(200,55,45,0.06); }
+  .buscador-item:hover { background: rgba(27,154,166,0.06); }
 }
 
 .buscador-vacio {

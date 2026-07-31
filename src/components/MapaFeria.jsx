@@ -1,45 +1,22 @@
-import { useEffect, useRef, useState } from 'react'
-import { MapContainer, TileLayer, Marker, Tooltip, useMap } from 'react-leaflet'
+import { useEffect, useRef } from 'react'
+import { MapContainer, TileLayer, useMap } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
-import 'leaflet-rotate'
-import L from 'leaflet'
-import CasetasGeoJSON from './CasetasGeoJSON'
+import LugaresIslantilla from './LugaresIslantilla'
 
-// Centro geográfico de las casetas
-const CENTRO = [37.3697, -5.9999]
-
-const POIS = [
-  { pos: [37.3714, -5.9974], emoji: '🏮', label: 'La Portada' },
-  { pos: [37.3677, -5.9912], emoji: '🧇', label: 'CarloyJose' },
-]
-
-function crearIconoPoi(emoji) {
-  return L.divIcon({
-    html: `<div class="poi-icono">${emoji}</div>`,
-    className: '',
-    iconAnchor: [20, 20],
-    iconSize:   [40, 40],
-  })
-}
+// Centro geográfico aproximado de Islantilla / La Antilla
+const CENTRO = [37.2080, -7.2130]
 
 // ─── MapInit ─────────────────────────────────────────────────────────────────
-// 1. Aplica el bearing PRIMERO
-// 2. Luego invalidateSize (para que Leaflet conozca el tamaño real del container)
-// 3. ResizeObserver para reaccionar a cambios de viewport (address bar de Safari)
-function MapInit({ bearing }) {
+// invalidateSize + ResizeObserver para reaccionar a cambios de viewport
+// (address bar de Safari, cambios de orientación...)
+function MapInit() {
   const map    = useMap()
   const roRef  = useRef(null)
 
-  // Bearing + invalidateSize en el orden correcto
   useEffect(() => {
-    if (typeof map.setBearing === 'function') {
-      map.setBearing(bearing)
-    }
-    // Tras aplicar el bearing, dejamos que el layout se estabilice antes de
-    // invalidar — Safari necesita unos ms para recalcular el viewport
     const t = setTimeout(() => map.invalidateSize({ animate: false }), 120)
     return () => clearTimeout(t)
-  }, [map, bearing])
+  }, [map])
 
   // ResizeObserver: más fiable que window.resize en Safari iOS
   useEffect(() => {
@@ -71,88 +48,30 @@ function MapInit({ bearing }) {
   return null
 }
 
-// ─── RecintoGeoJSON ──────────────────────────────────────────────────────────
-function RecintoGeoJSON() {
-  const map = useMap()
-
-  useEffect(() => {
-    let layer
-    import('../data/recinto_feria.geojson').then(m => {
-      layer = L.geoJSON(m.default, {
-        style: {
-          color:       '#D4A55A',
-          weight:      2,
-          opacity:     0.7,
-          fillColor:   '#F4E8C1',
-          fillOpacity: 0.07,
-        },
-      }).addTo(map)
-    })
-    return () => { if (layer) layer.remove() }
-  }, [map])
-
-  return null
-}
-
-function esMobilePortraitActual() {
-  return window.matchMedia('(orientation: portrait) and (max-width: 768px)').matches
-}
-
 export default function MapaFeria({ usuario, onCeldaSeleccionada, onCeldaVista, refrescar, celdaResaltada }) {
-  const BEARING_MOVIL = 80
-  const [mobilePortrait, setMobilePortrait] = useState(esMobilePortraitActual)
-
-  useEffect(() => {
-    const mq = window.matchMedia('(orientation: portrait) and (max-width: 768px)')
-    const onChange = (e) => setMobilePortrait(e.matches)
-    mq.addEventListener('change', onChange)
-    return () => mq.removeEventListener('change', onChange)
-  }, [])
-
-  const bearing = mobilePortrait ? BEARING_MOVIL : 0
-
   return (
-    <>
-      <MapContainer
-        center={CENTRO}
-        zoom={16}
-        zoomControl={false}
-        rotate={true}
-        touchRotate={false}
-        rotateControl={false}
-        style={{ height: '100%', width: '100%' }}
-      >
-        <MapInit bearing={bearing} />
+    <MapContainer
+      center={CENTRO}
+      zoom={15}
+      zoomControl={false}
+      style={{ height: '100%', width: '100%' }}
+    >
+      <MapInit />
 
-        <TileLayer
-          url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
-          subdomains="abcd"
-          maxZoom={19}
-        />
+      <TileLayer
+        url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+        subdomains="abcd"
+        maxZoom={19}
+      />
 
-        <RecintoGeoJSON />
-
-        <CasetasGeoJSON
-          usuario={usuario}
-          onCeldaSeleccionada={onCeldaSeleccionada}
-          onCeldaVista={onCeldaVista}
-          refrescar={refrescar}
-          celdaResaltada={celdaResaltada}
-        />
-
-        {POIS.map((poi) => (
-          <Marker
-            key={poi.label}
-            position={poi.pos}
-            icon={crearIconoPoi(poi.emoji)}
-          >
-            <Tooltip permanent direction="bottom" offset={[0, 8]} className="poi-tooltip">
-              {poi.label}
-            </Tooltip>
-          </Marker>
-        ))}
-      </MapContainer>
-    </>
+      <LugaresIslantilla
+        usuario={usuario}
+        onCeldaSeleccionada={onCeldaSeleccionada}
+        onCeldaVista={onCeldaVista}
+        refrescar={refrescar}
+        celdaResaltada={celdaResaltada}
+      />
+    </MapContainer>
   )
 }

@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react'
+import { Camera } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 
 // Comprime la imagen antes de subirla: máx 1200px en cualquier dimensión, JPEG 0.82
@@ -49,7 +50,7 @@ export default function BottomSheet({ celda, usuario, onCerrar, onReclamada }) {
       const blob = await comprimirImagen(foto)
 
       // 2. Subir a Supabase Storage
-      const fileName = `${usuario.id}/${celda.row}-${celda.col}-${Date.now()}.jpg`
+      const fileName = `${usuario.id}/${celda.lugar_id}-${Date.now()}.jpg`
       const { error: uploadError } = await supabase.storage
         .from('celda-images')
         .upload(fileName, blob, { contentType: 'image/jpeg' })
@@ -65,24 +66,25 @@ export default function BottomSheet({ celda, usuario, onCerrar, onReclamada }) {
                      ?? usuario.user_metadata?.name
                      ?? 'Anónimo'
       const { error: dbError } = await supabase.from('celdas').insert({
-        row:         celda.row,
-        col:         celda.col,
-        owner_id:    usuario.id,
-        owner_name:  ownerName,
-        image_url:   publicUrl,
-        pie_de_foto: pieDeFoto.trim() || null,
-        street:      celda.street || null,
-        number:      celda.number || null,
+        feria:        'islantilla',
+        lugar_id:     celda.lugar_id,
+        nombre_lugar: celda.nombre_lugar,
+        categoria:    celda.categoria,
+        lat:          celda.lat,
+        lng:          celda.lng,
+        owner_id:     usuario.id,
+        owner_name:   ownerName,
+        image_url:    publicUrl,
+        pie_de_foto:  pieDeFoto.trim() || null,
       })
       if (dbError) throw dbError
 
       // 5. Notificar al mapa y cerrar
       onReclamada({
-        row:         celda.row,
-        col:         celda.col,
-        owner_name:  ownerName,
-        image_url:   publicUrl,
-        pie_de_foto: pieDeFoto.trim() || null,
+        lugar_id:     celda.lugar_id,
+        owner_name:   ownerName,
+        image_url:    publicUrl,
+        pie_de_foto:  pieDeFoto.trim() || null,
       })
       onCerrar()
 
@@ -128,8 +130,8 @@ export default function BottomSheet({ celda, usuario, onCerrar, onReclamada }) {
             className="bs-foto-btn"
             onClick={() => inputRef.current.click()}
           >
-            <span className="bs-foto-icono">📷</span>
-            <span>Enséñanos tu feria</span>
+            <span className="bs-foto-icono"><Camera size={28} strokeWidth={1.75} /></span>
+            <span>Enséñanos tu Islantilla</span>
           </button>
         )}
 
@@ -147,7 +149,7 @@ export default function BottomSheet({ celda, usuario, onCerrar, onReclamada }) {
         {error && <p className="bs-error">{error}</p>}
 
         <button
-          className="btn-entra bs-reclamar"
+          className="btn-entra bs-reclamar btn-cta"
           onClick={handleReclamar}
           disabled={!foto || cargando}
         >

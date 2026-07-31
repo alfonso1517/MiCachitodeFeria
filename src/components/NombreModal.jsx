@@ -42,7 +42,7 @@ export default function NombreModal({ onGuardar, onCerrar }) {
         <form onSubmit={handleGuardar} className="auth-form">
           <input
             type="text"
-            placeholder="Tu nombre en la feria"
+            placeholder="Tu nombre en Islantilla"
             value={nombre}
             onChange={e => setNombre(e.target.value)}
             maxLength={30}

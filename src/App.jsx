@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { Camera, CircleUserRound, Info, Download } from 'lucide-react'
 import { supabase } from './lib/supabase'
 import MapaFeria from './components/MapaFeria'
 import NombreModal from './components/NombreModal'
@@ -22,9 +23,8 @@ function estaInstalada() {
   )
 }
 
-function formatDireccion({ street, number, name } = {}) {
-  const partes = [street, number].filter(Boolean).join(', ')
-  return name ? `${partes} — ${name}` : partes
+function formatDireccion({ nombre_lugar } = {}) {
+  return nombre_lugar || ''
 }
 
 export default function App() {
@@ -145,49 +145,46 @@ export default function App() {
   return (
     <div id="app">
 
-      <header id="header">
-        <div className="header-logo-wrap">
-          <img src="/logo_mcdf.png" alt="MiCachoDeFeria" className="logo-img" />
-        </div>
+      <div id="top-stack">
+        <header id="header">
+          <div className="header-logo-wrap">
+            <img src="/islantilla.png" alt="(Is)lantilla" className="logo-img" />
+          </div>
 
-        <div className="header-usuario">
-          {displayName ? (
-            <>
-              <span className="header-nombre">{displayName}</span>
-              <button
-                className="btn-editar-nombre"
-                onClick={() => setMostrarNombre(true)}
-                title="Cambiar nombre"
-              >✎</button>
-            </>
-          ) : (
-            <button className="btn-entra" onClick={() => setMostrarNombre(true)}>
-              Pon tu nombre
+          <div className="header-usuario">
+            <button
+              className="btn-usuario"
+              onClick={() => setMostrarNombre(true)}
+              title={displayName || 'Pon tu nombre'}
+              aria-label={displayName ? 'Cambiar nombre' : 'Pon tu nombre'}
+            >
+              <CircleUserRound size={32} strokeWidth={1.75} />
+            </button>
+          </div>
+        </header>
+
+        {/* Grupo compacto: buscar, información, instalar app */}
+        <div className="toolbar-superior">
+          <BuscadorCasetas onSeleccionar={item => setCeldaResaltada(item)} />
+          <button className="btn-info" onClick={() => setMostrarInfo(true)} title="¿Cómo funciona?">
+            <Info size={20} strokeWidth={2} />
+          </button>
+          {mostrarBtnPWA && (
+            <button className="btn-pwa" onClick={handleInstalarApp} aria-label="Instalar app" title="Instalar app">
+              <Download size={20} strokeWidth={2} />
             </button>
           )}
         </div>
-      </header>
+      </div>
 
-      {/* Botón de información flotante */}
-      <button className="btn-info" onClick={() => setMostrarInfo(true)} title="¿Cómo funciona?">
-        <i>i</i>
-      </button>
-
-      {/* Botones flotantes independientes */}
-      {mostrarBtnPWA && (
-        <button className="btn-pwa" onClick={handleInstalarApp} aria-label="Instalar app">
-          App
-        </button>
-      )}
-      <BuscadorCasetas onSeleccionar={item => setCeldaResaltada(item)} />
-      <button className="btn-subir-foto" onClick={handleSubirFoto} aria-label="Subir foto">
-        📷 Subir Foto
+      <button className="btn-subir-foto" onClick={handleSubirFoto} aria-label="Subir foto" title="Subir foto">
+        <Camera size={32} strokeWidth={2} />
       </button>
 
       {/* Toast guía */}
       {toastVisible && (
         <div className="toast-guia">
-          ¡Busca tu caseta o tócala en el mapa!
+          ¡Busca tu chiringuito o tócalo en el mapa!
         </div>
       )}
 

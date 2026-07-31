@@ -1,10 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
+import { X } from 'lucide-react'
 import { supabase } from '../lib/supabase'
-
-function formatDireccion({ street, number, name } = {}) {
-  const partes = [street, number].filter(Boolean).join(', ')
-  return name ? `${partes} — ${name}` : partes
-}
 
 const DIAS  = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado']
 const MESES = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic']
@@ -30,9 +26,9 @@ function tiempoRelativo(dateStr) {
 
 const MAX_COMENTARIOS = 50
 
-// celda = { fotos, row, col, street, number, name }
+// celda = { fotos, lugar_id, nombre_lugar }
 export default function FotoSheet({ celda, usuario, onCerrar }) {
-  const direccion = formatDireccion(celda)
+  const direccion = celda.nombre_lugar
   const fotos = celda.fotos ?? []
   const total = fotos.length
 
@@ -55,17 +51,17 @@ export default function FotoSheet({ celda, usuario, onCerrar }) {
   const listaRef = useRef(null)
 
   useEffect(() => {
-    if (celda.row == null || celda.col == null) return
+    if (!celda.lugar_id) return
     supabase
       .from('comentarios')
       .select('id, owner_name, texto, created_at')
-      .eq('celda_row', celda.row)
-      .eq('celda_col', celda.col)
+      .eq('feria', 'islantilla')
+      .eq('lugar_id', celda.lugar_id)
       .order('created_at', { ascending: true })
       .then(({ data, error }) => {
         if (!error && data) setComentarios(data)
       })
-  }, [celda.row, celda.col])
+  }, [celda.lugar_id])
 
   // Scroll al final al cargar
   useEffect(() => {
@@ -83,8 +79,8 @@ export default function FotoSheet({ celda, usuario, onCerrar }) {
     const { data, error } = await supabase
       .from('comentarios')
       .insert({
-        celda_row:  celda.row,
-        celda_col:  celda.col,
+        feria:      'islantilla',
+        lugar_id:   celda.lugar_id,
         owner_id:   usuario.id,
         owner_name: ownerName,
         texto,
@@ -134,7 +130,7 @@ export default function FotoSheet({ celda, usuario, onCerrar }) {
             {fotoActual && (
               <span className="fs-nombre">{fotoActual.owner_name || 'Anónimo'}</span>
             )}
-            <button className="fs-cerrar-x" onClick={onCerrar} aria-label="Cerrar">✕</button>
+            <button className="fs-cerrar-x" onClick={onCerrar} aria-label="Cerrar"><X size={18} strokeWidth={2} /></button>
           </div>
           {fotoActual?.pie_de_foto && <p className="fs-pie">{fotoActual.pie_de_foto}</p>}
           {fotoActual?.claimed_at && <p className="fs-fecha">{formatFecha(fotoActual.claimed_at)}</p>}

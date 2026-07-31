@@ -1,57 +1,35 @@
 import { useState, useMemo, useRef, useEffect } from 'react'
+import { Search } from 'lucide-react'
+import lugaresData from '../data/lugares_islantilla.json'
+
+const DIACRITICOS = new RegExp('[' + String.fromCharCode(0x300) + '-' + String.fromCharCode(0x36f) + ']', 'g')
 
 function normalizar(str) {
-  return (str || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+  return (str || '').toLowerCase().normalize('NFD').replace(DIACRITICOS, '')
 }
 
-function centroide(coordenadas) {
-  const ring = coordenadas[0]
-  const lat = ring.reduce((s, c) => s + c[1], 0) / ring.length
-  const lng = ring.reduce((s, c) => s + c[0], 0) / ring.length
-  return [lat, lng]
-}
-
-function construirIndice(data) {
-  return data.features
-    .map(f => {
-      const { row, col, name, street, number } = f.properties
-      const key = `${row}-${col}`
-      const partes = [street, number].filter(Boolean).join(', ')
-      const display = name ? `${partes} — ${name}` : partes
-      if (!display) return null
-      return {
-        key,
-        row, col,
-        display,
-        textoBusqueda: normalizar(`${name} ${street} ${number}`),
-        lat: centroide(f.geometry.coordinates)[0],
-        lng: centroide(f.geometry.coordinates)[1],
-      }
-    })
-    .filter(Boolean)
-}
+const INDICE = lugaresData.map(l => ({
+  lugar_id:      l.id,
+  display:       l.nombre,
+  textoBusqueda: normalizar(l.nombre),
+  lat:           l.lat,
+  lng:           l.lng,
+}))
 
 export default function BuscadorCasetas({ onSeleccionar }) {
   const [abierto, setAbierto] = useState(false)
   const [query,   setQuery]   = useState('')
-  const [indice,  setIndice]  = useState([])
   const inputRef = useRef(null)
   const panelRef = useRef(null)
-
-  // Lazy load — no bloquea el render inicial
-  useEffect(() => {
-    import('../data/casetas_feria.geojson')
-      .then(m => setIndice(construirIndice(m.default)))
-  }, [])
 
   const resultados = useMemo(() => {
     const q = normalizar(query).trim()
     if (!q) return []
     const tokens = q.split(/\s+/)
-    return indice
+    return INDICE
       .filter(item => tokens.every(t => item.textoBusqueda.includes(t)))
       .slice(0, 9)
-  }, [query, indice])
+  }, [query])
 
   useEffect(() => {
     if (abierto) {
@@ -78,9 +56,10 @@ export default function BuscadorCasetas({ onSeleccionar }) {
       <button
         className="btn-buscar"
         onClick={() => setAbierto(a => !a)}
-        aria-label="Buscar caseta"
+        aria-label="Buscar lugar"
+        title="Buscar lugar"
       >
-        Buscar Caseta
+        <Search size={20} strokeWidth={2} />
       </button>
 
       {abierto && (
@@ -92,7 +71,7 @@ export default function BuscadorCasetas({ onSeleccionar }) {
               ref={inputRef}
               className="buscador-input"
               type="search"
-              placeholder="Caseta, calle o número…"
+              placeholder="Chiringuito, bar, playa…"
               value={query}
               onChange={e => setQuery(e.target.value)}
               autoComplete="off"
@@ -104,7 +83,7 @@ export default function BuscadorCasetas({ onSeleccionar }) {
               <ul className="buscador-lista">
                 {resultados.map(item => (
                   <li
-                    key={item.key}
+                    key={item.lugar_id}
                     className="buscador-item"
                     onClick={() => seleccionar(item)}
                   >
